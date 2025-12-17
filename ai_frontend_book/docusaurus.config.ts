@@ -86,10 +86,10 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'TextBook',
         },
         {
-          href: 'https://github.com/your-org/ai-humanoid-robotics',
+          href: 'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit',
           label: 'GitHub',
           position: 'right',
         },
