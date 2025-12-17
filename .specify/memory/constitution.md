@@ -1,55 +1,59 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!-- SYNC IMPACT REPORT:
+Version change: N/A (initial creation) → 1.0.0
+Added sections: All sections (initial constitution creation)
+Templates requiring updates: N/A (initial creation)
+Follow-up TODOs: None
+-->
+# AI/Spec-Driven Technical Book with Embedded RAG Chatbot Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### Spec-First, Reproducible Development
+Every aspect of the project starts with clear specifications before implementation; All features must be spec-defined, testable, and documented before coding begins; Clear requirements and acceptance criteria required - no implementation without proper specification.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Factual Accuracy and Zero Hallucination
+All content must be factually accurate and verifiable; The RAG chatbot must only respond with information from the book content or user-selected text; No speculative claims or fabricated information allowed in either book content or chatbot responses.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Clear Structure for Technical Audience
+Content must be organized in a modular, chapter-based format suitable for technical readers; Each chapter must include clear objectives, detailed explanations, and comprehensive summaries; Defined terminology and consistent technical language throughout.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Full Alignment Between Book Content and Chatbot Knowledge
+The chatbot's knowledge base must be strictly limited to the book content only; Responses must be deterministic and citation-backed with references to specific book sections; All chatbot responses must align perfectly with the documented book content.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### Public, Self-Contained Repository
+The entire project must be hosted in a public GitHub repository with all necessary dependencies and documentation; No external proprietary components that would limit accessibility or reproduction; Complete setup and deployment instructions must be provided.
 
-### [PRINCIPLE_6_NAME]
+### Deterministic, Citation-Backed Responses
+All chatbot responses must include citations to specific book sections; Responses must be reproducible and consistent for identical queries; No probabilistic or variable responses that could lead to inconsistency.
 
+## Technical Standards
 
-[PRINCIPLE__DESCRIPTION]
+- Book Platform: Docusaurus framework for static site generation
+- Deployment: GitHub Pages for hosting
+- Chatbot Framework: FastAPI backend with OpenAI Agents/ChatKit
+- Vector Database: Qdrant Cloud (Free tier)
+- Database: Neon Serverless Postgres for metadata
+- Knowledge Source: Limited to book content only (no external sources)
+- User Interaction: Support answers from user-selected text only
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Content Standards
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+- Format: Modular, chapter-based Markdown book
+- Structure: Each chapter must include objectives, explanations, and summaries
+- Terminology: Defined and consistent technical terms throughout
+- Claims: No speculative or unverified statements allowed
+- Updates: Content changes must be reflected in chatbot knowledge base
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+## Development Workflow
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+- Spec-Driven: All features must be specified in specs/ before implementation
+- Testing: Unit tests for all components, integration tests for chatbot functionality
+- Review Process: Code reviews must verify compliance with constitution principles
+- Quality Gates: Automated checks for hallucination prevention and content accuracy
+- Deployment: Automated deployment pipeline from GitHub Actions
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution governs all aspects of the project development and takes precedence over any conflicting practices; Amendments require formal documentation, team approval, and migration plan if applicable; All pull requests and reviews must verify compliance with these principles; Complexity must be justified with clear benefits; Use this constitution as the primary guidance for all development decisions.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-12-17 | **Last Amended**: 2025-12-17
