@@ -19,7 +19,7 @@ const sidebars: SidebarsConfig = {
       type: 'category',
       label: 'Introduction',
       items: ['intro'],
-      collapsed: false,
+      collapsed: true,
     },
     {
       type: 'category',
@@ -30,7 +30,7 @@ const sidebars: SidebarsConfig = {
         'module1/python-ai-agents',
         'module1/urdf-basics',
       ],
-      collapsed: false,
+      collapsed: true,
     },
     {
       type: 'category',
@@ -41,7 +41,7 @@ const sidebars: SidebarsConfig = {
         'module2/unity-interaction',
         'module2/sensor-simulation',
       ],
-      collapsed: false,
+      collapsed: true,
     },
     {
       type: 'category',
@@ -52,7 +52,7 @@ const sidebars: SidebarsConfig = {
         'module3/isaac-ros',
         'module3/nav2-planning',
       ],
-      collapsed: false,
+      collapsed: true,
     },
     {
       type: 'category',
@@ -64,7 +64,7 @@ const sidebars: SidebarsConfig = {
         'module4/capstone-autonomous',
         'module4/tasks',
       ],
-      collapsed: false,
+      collapsed: true,
     },
   ],
 };
