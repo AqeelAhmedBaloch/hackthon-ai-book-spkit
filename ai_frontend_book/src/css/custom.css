@@ -3,16 +3,21 @@
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
  */
+body {
+  font-family: "Times New Roman", Times, serif !important;
+  line-height: 1.2;   /* Text ko airy / multi-line look */
+}
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-color-primary: #0d47a1;        /* Dark Blue */
+  --ifm-color-primary-dark: #0b3d91;
+  --ifm-color-primary-darker: #0a3785;
+  --ifm-color-primary-darkest: #072a66;
+  --ifm-color-primary-light: #1565c0;
+  --ifm-color-primary-lighter: #1976d2;
+  --ifm-color-primary-lightest: #42a5f5;
+
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
@@ -27,4 +32,16 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Make secondary button blue with white text */
+.button--secondary {
+  background-color: #007bff !important; /* Blue */
+  color: #ffffff !important;            /* White text */
+  border-color: #007bff !important;
+}
+
+.button--secondary:hover {
+  background-color: #0056b3 !important; /* Darker blue */
+  color: #ffffff !important;
 }
