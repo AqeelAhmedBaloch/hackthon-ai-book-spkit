@@ -76,7 +76,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Physical AI-Powered Humanoid Robotics Textbook',
+      title: 'AI-Powered Humanoid Robotics Textbook',
       logo: {
         alt: 'AI Humanoid Robotics Logo',
         src: 'img/logo.svg',
