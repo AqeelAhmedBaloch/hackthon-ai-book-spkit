@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'AI-Powered Humanoid Robotics',
-  tagline: 'Comprehensive guide to Physical AI & Humanoid Robotics with ROS 2, Simulation, Isaac Tools, and Autonomous Systems',
+  tagline: 'A complete and practical learning system where you master the future:humanoid robotics, ROS 2, large action models,simulation, VLA system, hardware, and advance AI for next-generation intelligent machines.',
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
