@@ -144,12 +144,8 @@ const config: Config = {
           title: 'More',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
               label: 'GitHub',
-              href: 'https://github.com/your-org/ai-humanoid-robotics',
+              href: 'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit',
             },
           ],
         },
