@@ -76,7 +76,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'AI-Powered Humanoid Robotics',
+      title: 'Physical AI-Powered Humanoid Robotics Textbook',
       logo: {
         alt: 'AI Humanoid Robotics Logo',
         src: 'img/logo.svg',
@@ -106,19 +106,19 @@ const config: Config = {
               to: '/docs/intro',
             },
             {
-              label: 'Module 1: The Robotic Nervous System (ROS 2)',
+              label: 'Module 1:',
               to: '/docs/module1/intro',
             },
             {
-              label: 'Module 2: The Digital Twin (Gazebo & Unity)',
+              label: 'Module 2:',
               to: '/docs/module2/intro',
             },
             {
-              label: 'Module 3: The AI-Robot Brain (NVIDIA Isaac™)',
+              label: 'Module 3:',
               to: '/docs/module3/intro',
             },
             {
-              label: 'Module 4: Vision-Language-Action (VLA)',
+              label: 'Module 4:',
               to: '/docs/module4/intro',
             },
           ],
