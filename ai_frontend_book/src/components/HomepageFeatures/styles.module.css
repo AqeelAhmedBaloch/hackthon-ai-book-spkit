@@ -3,9 +3,70 @@
   align-items: center;
   padding: 2rem 0;
   width: 100%;
+  background-color: #f8fafc; /* Light background for contrast */
 }
 
 .featureSvg {
-  height: 200px;
-  width: 200px;
+  height: 150px;
+  width: 150px;
+  margin-bottom: 1.5rem;
+  opacity: 0.8; /* Subtle appearance to not distract from text */
+}
+
+/* Academic Typography Styling */
+.featureTitle {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 600; /* Slightly heavier weight */
+  font-size: 1.75rem;
+  color: #1e3a8a; /* Dark blue academic color */
+  margin-bottom: 1rem;
+  text-align: center;
+  letter-spacing: -0.02em; /* Balanced letter spacing */
+  line-height: 1.3;
+}
+
+.featureDescription {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.1rem;
+  line-height: 1.7; /* Improved line spacing for readability */
+  color: #1e293b; /* Dark gray for better readability */
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  letter-spacing: 0.01em; /* Balanced letter spacing */
+  padding: 0 1rem;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 996px) {
+  .featureTitle {
+    font-size: 1.5rem;
+  }
+
+  .featureDescription {
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 0 0.5rem;
+  }
+
+  .featureSvg {
+    height: 120px;
+    width: 120px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .featureTitle {
+    font-size: 1.3rem;
+  }
+
+  .featureDescription {
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .featureSvg {
+    height: 100px;
+    width: 100px;
+  }
 }
