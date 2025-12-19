@@ -22,12 +22,25 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-organization', // Usually your GitHub org/user name.
-  projectName: 'ai-humanoid-robotics', // Usually your repo name.
+  organizationName: 'AqeelAhmedBaloch', // Usually your GitHub org/user name.
+  projectName: 'hackthon-ai-book-spkit', // Usually your repo name.
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'warn',
-  // onBrokenMarkdownLinks: 'throw',
+  // onBrokenMarkdownLinks has been moved to markdown hooks to address deprecation warning
+  // onBrokenMarkdownLinks: 'warn', // Deprecated
+
+  // Additional markdown options with hooks to address deprecation warning
+  markdown: {
+    mermaid: true,
+    mdx1Compat: {
+      comments: true,
+      admonitions: true,
+      headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: 'warn',
+    },
+  },
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -45,7 +58,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
-          editUrl: 'https://github.com/your-org/ai-humanoid-robotics/edit/main/',
+          editUrl: 'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit/edit/main/',
         },
         blog: {
           showReadingTime: true,
@@ -56,7 +69,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/your-org/ai-humanoid-robotics/edit/main/',
+            'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit/edit/main/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',

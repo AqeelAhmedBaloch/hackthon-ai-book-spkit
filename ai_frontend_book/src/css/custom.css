@@ -3,10 +3,6 @@
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
  */
-body {
-  font-family: "Times New Roman", Times, serif !important;
-  line-height: 1.2;   /* Text ko airy / multi-line look */
-}
 
 /* You can override the default Infima variables here. */
 :root {
