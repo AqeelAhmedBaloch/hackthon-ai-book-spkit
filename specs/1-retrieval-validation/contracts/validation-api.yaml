@@ -1,0 +1,203 @@
+openapi: 3.0.0
+info:
+  title: Retrieval Validation API
+  description: API for validating vector-based retrieval from embedded book content
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /validate:
+    post:
+      summary: Run retrieval validation
+      description: Performs validation of vector retrieval accuracy, metadata preservation, and consistency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /validate/health:
+    get:
+      summary: Health check
+      description: Check if the validation service is running and can connect to Qdrant
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        validation_type:
+          type: string
+          enum: [accuracy, metadata, consistency, all]
+          description: Type of validation to perform
+          default: all
+        config:
+          $ref: '#/components/schemas/ValidationConfig'
+        test_queries:
+          type: array
+          items:
+            type: string
+          description: Optional custom test queries to use for validation
+      required:
+        - validation_type
+
+    ValidationConfig:
+      type: object
+      properties:
+        top_k:
+          type: integer
+          description: Number of top results to retrieve
+          default: 5
+          minimum: 1
+        similarity_threshold:
+          type: number
+          format: float
+          description: Minimum similarity score for relevance
+          default: 0.7
+          minimum: 0.0
+          maximum: 1.0
+        consistency_runs:
+          type: integer
+          description: Number of times to repeat query for consistency check
+          default: 5
+          minimum: 1
+        expected_accuracy_threshold:
+          type: number
+          format: float
+          description: Minimum accuracy required
+          default: 0.9
+          minimum: 0.0
+          maximum: 1.0
+        metadata_preservation_threshold:
+          type: number
+          format: float
+          description: Minimum metadata preservation required
+          default: 1.0
+          minimum: 0.0
+          maximum: 1.0
+        consistency_threshold:
+          type: number
+          format: float
+          description: Minimum consistency required
+          default: 0.95
+          minimum: 0.0
+          maximum: 1.0
+
+    ValidationResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the validation run
+        timestamp:
+          type: string
+          format: date-time
+          description: When the validation was performed
+        summary:
+          $ref: '#/components/schemas/ValidationSummary'
+        details:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ValidationDetail'
+        status:
+          type: string
+          enum: [PASS, FAIL, WARNING]
+          description: Overall validation status
+
+    ValidationSummary:
+      type: object
+      properties:
+        accuracy_score:
+          type: number
+          format: float
+          description: Accuracy metric (0.0-1.0)
+        metadata_preservation_rate:
+          type: number
+          format: float
+          description: Percentage of metadata preserved (0.0-1.0)
+        consistency_score:
+          type: number
+          format: float
+          description: Consistency metric across multiple queries (0.0-1.0)
+        retrieval_time_ms:
+          type: number
+          format: float
+          description: Time taken for retrieval operation
+
+    ValidationDetail:
+      type: object
+      properties:
+        passed:
+          type: boolean
+          description: Whether the validation passed
+        expected:
+          type: number
+          format: float
+          description: Expected value for the validation
+        actual:
+          type: number
+          format: float
+          description: Actual value observed
+        threshold:
+          type: number
+          format: float
+          description: Threshold value for the validation
+        details:
+          type: string
+          description: Additional details about the validation
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Health status of the service
+        qdrant_connected:
+          type: boolean
+          description: Whether the service can connect to Qdrant
+        message:
+          type: string
+          description: Additional health information
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details

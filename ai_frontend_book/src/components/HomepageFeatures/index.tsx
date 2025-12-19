@@ -5,14 +5,12 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: ReactNode;
 };
 
 const FeatureList: FeatureItem[] = [
   {
     title: 'What This Textbook Covers',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default, // Reusing the React icon or you can choose another appropriate icon
     description: (
       <>
         This is a complete AI-native engineering curriculum designed for physical AI, humanoid robotics, embodied intelligence, ROS 2 programming, digital twin simulations, and Vision-Language-Action (VLA) systems. Each module builds your robotics superpowers step by step.
@@ -21,12 +19,9 @@ const FeatureList: FeatureItem[] = [
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, description}: FeatureItem) {
   return (
     <div className={clsx('col col--12')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3" className={styles.featureTitle}>{title}</Heading>
         <p className={styles.featureDescription}>{description}</p>

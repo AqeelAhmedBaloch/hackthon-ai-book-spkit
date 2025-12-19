@@ -6,13 +6,6 @@
   background-color: #f8fafc; /* Light background for contrast */
 }
 
-.featureSvg {
-  height: 150px;
-  width: 150px;
-  margin-bottom: 1.5rem;
-  opacity: 0.8; /* Subtle appearance to not distract from text */
-}
-
 /* Academic Typography Styling */
 .featureTitle {
   font-family: 'Georgia', 'Times New Roman', serif;
@@ -48,11 +41,6 @@
     line-height: 1.6;
     padding: 0 0.5rem;
   }
-
-  .featureSvg {
-    height: 120px;
-    width: 120px;
-  }
 }
 
 @media screen and (max-width: 768px) {
@@ -63,10 +51,5 @@
   .featureDescription {
     font-size: 0.95rem;
     line-height: 1.6;
-  }
-
-  .featureSvg {
-    height: 100px;
-    width: 100px;
   }
 }

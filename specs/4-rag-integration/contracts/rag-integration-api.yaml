@@ -1,0 +1,422 @@
+openapi: 3.0.0
+info:
+  title: RAG Integration API
+  description: Complete API for the RAG system including content ingestion, retrieval, and chat functionality
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /query:
+    post:
+      summary: Submit a query to the RAG agent
+      description: Process a user query using the RAG agent with book content as context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '200':
+          description: Query processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /ingest:
+    post:
+      summary: Ingest book content
+      description: Process and store book content as embeddings in Qdrant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestionRequest'
+      responses:
+        '200':
+          description: Content ingested successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionResponse'
+        '400':
+          description: Invalid ingestion parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /validate:
+    post:
+      summary: Run retrieval validation
+      description: Perform validation of the retrieval pipeline accuracy and consistency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Validation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+        '400':
+          description: Invalid validation parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check if the RAG integration service is running and all dependencies are accessible
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    QueryRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: The user's question or request for information
+          example: "What is the main concept discussed in chapter 1?"
+        selected_text:
+          type: string
+          description: Optional text that the user has selected on the page for context
+          example: "The retrieval-augmented generation approach combines..."
+        page_url:
+          type: string
+          description: URL of the current page where the question was asked
+          example: "http://localhost:3000/docs/module1/introduction"
+        session_id:
+          type: string
+          description: Optional identifier for the conversation session
+          example: "session_456"
+      required:
+        - query
+
+    QueryResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The RAG agent's answer to the query
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: References to specific book sections used in the response
+        confidence:
+          type: number
+          format: float
+          description: Confidence score for the response (0.0-1.0)
+          minimum: 0.0
+          maximum: 1.0
+        retrieved_chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentChunk'
+          description: Content chunks retrieved during processing
+        processing_time_ms:
+          type: number
+          format: float
+          description: Time taken to process the query
+        request_id:
+          type: string
+          description: Unique identifier for the original request
+        timestamp:
+          type: string
+          format: date-time
+          description: When the response was received
+
+    IngestionRequest:
+      type: object
+      properties:
+        input_path:
+          type: string
+          description: Path to the book content to be ingested
+          example: "/path/to/book/content"
+        collection_name:
+          type: string
+          description: Name of the Qdrant collection to store embeddings
+          example: "book_content"
+        config:
+          $ref: '#/components/schemas/IngestionConfig'
+
+    IngestionConfig:
+      type: object
+      properties:
+        chunk_size:
+          type: integer
+          description: Size of content chunks in tokens
+          default: 512
+          minimum: 1
+        chunk_overlap:
+          type: integer
+          description: Overlap between chunks in tokens
+          default: 50
+          minimum: 0
+        model:
+          type: string
+          description: Embedding model to use
+          default: "text-embedding-ada-002"
+        batch_size:
+          type: integer
+          description: Number of chunks to process in each batch
+          default: 10
+          minimum: 1
+
+    IngestionResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, failed]
+          description: Status of the ingestion process
+        processed_chunks:
+          type: integer
+          description: Number of content chunks processed
+        collection_name:
+          type: string
+          description: Name of the Qdrant collection where embeddings were stored
+        processing_time_ms:
+          type: number
+          format: float
+          description: Time taken to process the ingestion
+
+    ValidationRequest:
+      type: object
+      properties:
+        validation_type:
+          type: string
+          enum: [accuracy, metadata, consistency, all]
+          description: Type of validation to perform
+          default: all
+        config:
+          $ref: '#/components/schemas/ValidationConfig'
+        test_queries:
+          type: array
+          items:
+            type: string
+          description: Optional custom test queries to use for validation
+
+    ValidationConfig:
+      type: object
+      properties:
+        top_k:
+          type: integer
+          description: Number of top results to retrieve
+          default: 5
+          minimum: 1
+        similarity_threshold:
+          type: number
+          format: float
+          description: Minimum similarity score for relevance
+          default: 0.7
+          minimum: 0.0
+          maximum: 1.0
+        consistency_runs:
+          type: integer
+          description: Number of times to repeat query for consistency check
+          default: 5
+          minimum: 1
+        expected_accuracy_threshold:
+          type: number
+          format: float
+          description: Minimum accuracy required
+          default: 0.9
+          minimum: 0.0
+          maximum: 1.0
+        metadata_preservation_threshold:
+          type: number
+          format: float
+          description: Minimum metadata preservation required
+          default: 1.0
+          minimum: 0.0
+          maximum: 1.0
+        consistency_threshold:
+          type: number
+          format: float
+          description: Minimum consistency required
+          default: 0.95
+          minimum: 0.0
+          maximum: 1.0
+
+    ValidationResult:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the validation run
+        timestamp:
+          type: string
+          format: date-time
+          description: When the validation was performed
+        summary:
+          $ref: '#/components/schemas/ValidationSummary'
+        details:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ValidationDetail'
+        status:
+          type: string
+          enum: [PASS, FAIL, WARNING]
+          description: Overall validation status
+
+    ValidationSummary:
+      type: object
+      properties:
+        accuracy_score:
+          type: number
+          format: float
+          description: Accuracy metric (0.0-1.0)
+        metadata_preservation_rate:
+          type: number
+          format: float
+          description: Percentage of metadata preserved (0.0-1.0)
+        consistency_score:
+          type: number
+          format: float
+          description: Consistency metric across multiple queries (0.0-1.0)
+        retrieval_time_ms:
+          type: number
+          format: float
+          description: Time taken for retrieval operation
+
+    ValidationDetail:
+      type: object
+      properties:
+        passed:
+          type: boolean
+          description: Whether the validation passed
+        expected:
+          type: number
+          format: float
+          description: Expected value for the validation
+        actual:
+          type: number
+          format: float
+          description: Actual value observed
+        threshold:
+          type: number
+          format: float
+          description: Threshold value for the validation
+        details:
+          type: string
+          description: Additional details about the validation
+
+    ContentChunk:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the content chunk
+        content:
+          type: string
+          description: The actual text content of the chunk
+        source_document:
+          type: string
+          description: Name or identifier of the source document
+        page_number:
+          type: integer
+          description: Page number in the source
+        section:
+          type: string
+          description: Section or chapter name
+        metadata:
+          type: object
+          description: Additional metadata associated with the chunk
+
+    Citation:
+      type: object
+      properties:
+        source_document:
+          type: string
+          description: Name or identifier of the source document
+        page_number:
+          type: integer
+          description: Page number in the source
+        section:
+          type: string
+          description: Section or chapter name
+        text_snippet:
+          type: string
+          description: Brief excerpt from the cited content
+        similarity_score:
+          type: number
+          format: float
+          description: How relevant this citation was to the query
+          minimum: 0.0
+          maximum: 1.0
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Health status of the service
+        openai_connected:
+          type: boolean
+          description: Whether the service can connect to OpenAI
+        qdrant_connected:
+          type: boolean
+          description: Whether the service can connect to Qdrant
+        database_connected:
+          type: boolean
+          description: Whether the service can connect to the database
+        message:
+          type: string
+          description: Additional health information
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details

@@ -1,0 +1,283 @@
+openapi: 3.0.0
+info:
+  title: RAG Agent API
+  description: API for interacting with the Retrieval-Augmented Generation agent
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /query:
+    post:
+      summary: Submit a query to the RAG agent
+      description: Process a user query using the RAG agent with book content as context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequest'
+      responses:
+        '200':
+          description: Query processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check if the RAG agent service is running and all dependencies are accessible
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /config:
+    get:
+      summary: Get agent configuration
+      description: Retrieve the current configuration of the RAG agent
+      responses:
+        '200':
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfig'
+    put:
+      summary: Update agent configuration
+      description: Update the configuration of the RAG agent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentConfigUpdate'
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentConfig'
+        '400':
+          description: Invalid configuration parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    QueryRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: The user's question or request for information
+          example: "What is the main concept discussed in chapter 1?"
+        user_id:
+          type: string
+          description: Optional identifier for the user making the request
+          example: "user_123"
+        session_id:
+          type: string
+          description: Optional identifier for the conversation session
+          example: "session_456"
+        context_filters:
+          type: object
+          description: Filters to apply when retrieving context
+          properties:
+            chapter:
+              type: string
+              description: Specific chapter to focus on
+            section:
+              type: string
+              description: Specific section to focus on
+          additionalProperties: true
+      required:
+        - query
+
+    QueryResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The agent's answer to the query
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: References to specific book sections used in the response
+        confidence:
+          type: number
+          format: float
+          description: Confidence score for the response (0.0-1.0)
+          minimum: 0.0
+          maximum: 1.0
+        retrieved_chunks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentChunk'
+          description: Content chunks retrieved during processing
+        processing_time_ms:
+          type: number
+          format: float
+          description: Time taken to process the query
+        query_id:
+          type: string
+          description: Unique identifier for this query
+        session_id:
+          type: string
+          description: Session identifier for the conversation
+
+    Citation:
+      type: object
+      properties:
+        source_document:
+          type: string
+          description: Name or identifier of the source document
+        page_number:
+          type: integer
+          description: Page number in the source
+        section:
+          type: string
+          description: Section or chapter name
+        text_snippet:
+          type: string
+          description: Brief excerpt from the cited content
+        similarity_score:
+          type: number
+          format: float
+          description: How relevant this citation was to the query
+          minimum: 0.0
+          maximum: 1.0
+
+    ContentChunk:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the content chunk
+        content:
+          type: string
+          description: The actual text content of the chunk
+        metadata:
+          type: object
+          description: Associated metadata
+        similarity_score:
+          type: number
+          format: float
+          description: Similarity score relative to the query
+          minimum: 0.0
+          maximum: 1.0
+
+    AgentConfig:
+      type: object
+      properties:
+        model:
+          type: string
+          description: OpenAI model to use for the agent
+          default: "gpt-4-turbo"
+        temperature:
+          type: number
+          format: float
+          description: Temperature setting for response creativity
+          default: 0.1
+          minimum: 0.0
+          maximum: 2.0
+        max_tokens:
+          type: integer
+          description: Maximum tokens in the response
+          default: 1000
+          minimum: 1
+        retrieval_top_k:
+          type: integer
+          description: Number of content chunks to retrieve
+          default: 5
+          minimum: 1
+        similarity_threshold:
+          type: number
+          format: float
+          description: Minimum similarity for content inclusion
+          default: 0.7
+          minimum: 0.0
+          maximum: 1.0
+        citation_required:
+          type: boolean
+          description: Whether citations are mandatory in responses
+          default: true
+
+    AgentConfigUpdate:
+      type: object
+      properties:
+        temperature:
+          type: number
+          format: float
+          description: Temperature setting for response creativity
+          minimum: 0.0
+          maximum: 2.0
+        max_tokens:
+          type: integer
+          description: Maximum tokens in the response
+          minimum: 1
+        retrieval_top_k:
+          type: integer
+          description: Number of content chunks to retrieve
+          minimum: 1
+        similarity_threshold:
+          type: number
+          format: float
+          description: Minimum similarity for content inclusion
+          minimum: 0.0
+          maximum: 1.0
+        citation_required:
+          type: boolean
+          description: Whether citations are mandatory in responses
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Health status of the service
+        openai_connected:
+          type: boolean
+          description: Whether the service can connect to OpenAI
+        qdrant_connected:
+          type: boolean
+          description: Whether the service can connect to Qdrant
+        message:
+          type: string
+          description: Additional health information
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details

@@ -6,13 +6,13 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  --ifm-color-primary: #0d47a1;        /* Dark Blue */
-  --ifm-color-primary-dark: #0b3d91;
-  --ifm-color-primary-darker: #0a3785;
-  --ifm-color-primary-darkest: #072a66;
-  --ifm-color-primary-light: #1565c0;
-  --ifm-color-primary-lighter: #1976d2;
-  --ifm-color-primary-lightest: #42a5f5;
+  --ifm-color-primary: #1a237e;        /* Deep tech blue */
+  --ifm-color-primary-dark: #151d67;
+  --ifm-color-primary-darker: #12195a;
+  --ifm-color-primary-darkest: #0d1242;
+  --ifm-color-primary-light: #304ffe;
+  --ifm-color-primary-lighter: #536dfe;
+  --ifm-color-primary-lightest: #7890ff;
 
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
@@ -20,24 +20,34 @@
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: #536dfe;
+  --ifm-color-primary-dark: #304ffe;
+  --ifm-color-primary-darker: #1a237e;
+  --ifm-color-primary-darkest: #0d1242;
+  --ifm-color-primary-light: #7890ff;
+  --ifm-color-primary-lighter: #91a7ff;
+  --ifm-color-primary-lightest: #b3d9ff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
-/* Make secondary button blue with white text */
+/* Button styling - light blue only */
+.button--primary {
+  background-color: #3498db !important;  /* Light blue */
+  border-color: #3498db !important;
+}
+
+.button--primary:hover {
+  background-color: #2980b9 !important;  /* Slightly darker blue on hover */
+  border-color: #2980b9 !important;
+}
+
 .button--secondary {
-  background-color: #007bff !important; /* Blue */
-  color: #ffffff !important;            /* White text */
-  border-color: #007bff !important;
+  background-color: transparent !important;
+  border-color: #3498db !important;
+  color: #3498db !important;
 }
 
 .button--secondary:hover {
-  background-color: #0056b3 !important; /* Darker blue */
-  color: #ffffff !important;
+  background-color: #3498db !important;
+  color: white !important;
 }

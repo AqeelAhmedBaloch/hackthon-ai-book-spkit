@@ -1,0 +1,156 @@
+openapi: 3.0.0
+info:
+  title: Frontend Integration API
+  description: API contracts for frontend-backend communication in the RAG integration
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: RAG backend server
+
+paths:
+  /query:
+    post:
+      summary: Submit a query to the RAG agent
+      description: Process a user query using the RAG agent with book content as context, including optional selected text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+      responses:
+        '200':
+          description: Query processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '400':
+          description: Invalid request parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check if the RAG backend service is running and accessible
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  schemas:
+    ChatRequest:
+      type: object
+      properties:
+        query:
+          type: string
+          description: The user's question or request for information
+          example: "What is the main concept discussed in this section?"
+        selected_text:
+          type: string
+          description: Optional text that the user has selected on the page for context
+          example: "The retrieval-augmented generation approach combines..."
+        page_url:
+          type: string
+          description: URL of the current page where the question was asked
+          example: "http://localhost:3000/docs/module1/introduction"
+        session_id:
+          type: string
+          description: Optional identifier for the conversation session
+          example: "session_456"
+      required:
+        - query
+
+    ChatResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: The RAG agent's answer to the query
+        citations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Citation'
+          description: References to specific book sections used in the response
+        confidence:
+          type: number
+          format: float
+          description: Confidence score for the response (0.0-1.0)
+          minimum: 0.0
+          maximum: 1.0
+        processing_time_ms:
+          type: number
+          format: float
+          description: Time taken to process the query
+        request_id:
+          type: string
+          description: Unique identifier for the original request
+        timestamp:
+          type: string
+          format: date-time
+          description: When the response was received
+
+    Citation:
+      type: object
+      properties:
+        source_document:
+          type: string
+          description: Name or identifier of the source document
+        page_number:
+          type: integer
+          description: Page number in the source
+        section:
+          type: string
+          description: Section or chapter name
+        text_snippet:
+          type: string
+          description: Brief excerpt from the cited content
+        similarity_score:
+          type: number
+          format: float
+          description: How relevant this citation was to the query
+          minimum: 0.0
+          maximum: 1.0
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          description: Health status of the service
+        openai_connected:
+          type: boolean
+          description: Whether the service can connect to OpenAI
+        qdrant_connected:
+          type: boolean
+          description: Whether the service can connect to Qdrant
+        message:
+          type: string
+          description: Additional health information
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        details:
+          type: object
+          description: Additional error details
