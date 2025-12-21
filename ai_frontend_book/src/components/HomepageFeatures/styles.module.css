@@ -1,16 +1,9 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  padding: 4rem 0; /* Added proper spacing: 4rem top and bottom, 0 left and right */
   width: 100%;
   background-color: #f8fafc; /* Light background for contrast */
-}
-
-.featureSvg {
-  height: 150px;
-  width: 150px;
-  margin-bottom: 1.5rem;
-  opacity: 0.8; /* Subtle appearance to not distract from text */
 }
 
 /* Academic Typography Styling */
@@ -37,7 +30,37 @@
   padding: 0 1rem;
 }
 
-/* Responsive adjustments */
+/* Enhanced Responsive adjustments for all screen sizes */
+.features {
+  @media screen and (max-width: 1200px) {
+    padding: 3.5rem 0; /* Reduced spacing on large screens */
+  }
+
+  @media screen and (max-width: 996px) {
+    padding: 3rem 0; /* Reduced spacing on medium screens */
+  }
+
+  @media screen and (max-width: 768px) {
+    padding: 2.5rem 0; /* Further reduced spacing on small screens */
+  }
+
+  @media screen and (max-width: 576px) {
+    padding: 2rem 0; /* Minimal spacing on extra small screens */
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .featureTitle {
+    font-size: 1.65rem;
+  }
+
+  .featureDescription {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    padding: 0 1rem;
+  }
+}
+
 @media screen and (max-width: 996px) {
   .featureTitle {
     font-size: 1.5rem;
@@ -46,27 +69,51 @@
   .featureDescription {
     font-size: 1rem;
     line-height: 1.6;
-    padding: 0 0.5rem;
-  }
-
-  .featureSvg {
-    height: 120px;
-    width: 120px;
+    padding: 0 0.75rem;
   }
 }
 
 @media screen and (max-width: 768px) {
   .featureTitle {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
+    margin-bottom: 0.75rem;
   }
 
   .featureDescription {
     font-size: 0.95rem;
     line-height: 1.6;
+    padding: 0 0.5rem;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .featureTitle {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    padding: 0 0.25rem;
   }
 
-  .featureSvg {
-    height: 100px;
-    width: 100px;
+  .featureDescription {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    padding: 0 0.25rem;
+    max-width: 100%; /* Allow full width on very small screens */
+  }
+
+  .features {
+    padding: 1.5rem 0; /* Minimal spacing on extra small screens */
+  }
+}
+
+/* Extra small devices (phones, 320px and up) */
+@media screen and (max-width: 320px) {
+  .featureTitle {
+    font-size: 1.15rem;
+  }
+
+  .featureDescription {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    padding: 0 0.125rem;
   }
 }

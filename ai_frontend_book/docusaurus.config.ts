@@ -6,9 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Physical AI - Humanoid Robotics Textbook',
-  tagline: `A complete and practical learning system where you master the future:humanoid
-robotics, ROS 2, large action models,simulation, VLA system, hardware, and advance
-AI for next-generation intelligent machines.`,
+  tagline: "A complete and practical learning system where you master the future: \nhumanoid robotics, ROS 2, large action models, simulation, VLA system,\nhardware, and advanced AI for next-generation intelligent machines.",
   favicon: 'img/favicon.ico',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future

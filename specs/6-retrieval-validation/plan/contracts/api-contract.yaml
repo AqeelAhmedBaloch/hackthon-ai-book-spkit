@@ -1,0 +1,393 @@
+openapi: 3.0.3
+info:
+  title: Retrieval Validation API
+  description: API for validating vector-based retrieval from embedded book content in Qdrant
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /api/v1/validation/run:
+    post:
+      summary: Run retrieval validation tests
+      description: Execute a series of similarity searches and validate retrieval accuracy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - test_queries
+              properties:
+                test_queries:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                  description: Array of test queries to validate
+                  example: ["What is ROS 2?", "Explain humanoid robotics", "How to use Docusaurus"]
+                similarity_threshold:
+                  type: number
+                  minimum: 0.0
+                  maximum: 1.0
+                  default: 0.5
+                  description: Minimum similarity score threshold for results
+                top_k:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                  default: 5
+                  description: Number of top results to return for each query
+                validation_type:
+                  type: string
+                  enum: [similarity, metadata, consistency, comprehensive]
+                  default: comprehensive
+                  description: Type of validation to perform
+                consistency_iterations:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000
+                  default: 100
+                  description: Number of iterations for consistency testing
+      responses:
+        '202':
+          description: Validation started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - validation_id
+                  - status
+                  - message
+                properties:
+                  validation_id:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the validation run
+                  status:
+                    type: string
+                    enum: [running, completed]
+                    description: Current status of the validation
+                  message:
+                    type: string
+                    description: Status message
+                  total_queries:
+                    type: integer
+                    description: Number of queries to be validated
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/validation/{validation_id}:
+    get:
+      summary: Get validation results
+      description: Retrieve the results and metrics from a validation run
+      parameters:
+        - name: validation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the validation run
+      responses:
+        '200':
+          description: Validation results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationReport'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/validation/metadata/validate:
+    post:
+      summary: Validate metadata preservation
+      description: Validate that metadata is preserved correctly during retrieval
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - content_chunk_id
+                - expected_metadata
+              properties:
+                content_chunk_id:
+                  type: string
+                  format: uuid
+                  description: ID of the content chunk to validate
+                expected_metadata:
+                  type: object
+                  description: Expected metadata values to compare against
+      responses:
+        '200':
+          description: Metadata validation completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content_chunk_id:
+                    type: string
+                    format: uuid
+                  validation_result:
+                    type: string
+                    enum: [pass, fail]
+                  mismatched_fields:
+                    type: array
+                    items:
+                      type: string
+                    description: List of field names that didn't match
+                  details:
+                    type: object
+                    description: Detailed comparison results
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/validation/consistency/test:
+    post:
+      summary: Test retrieval consistency
+      description: Execute repeated queries to validate result consistency
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+                - iterations
+              properties:
+                query:
+                  type: string
+                  description: Query to test for consistency
+                iterations:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000
+                  default: 100
+                  description: Number of times to execute the query
+                top_k:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 5
+                  description: Number of top results to compare
+      responses:
+        '200':
+          description: Consistency test completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  consistency_score:
+                    type: number
+                    format: float
+                    minimum: 0.0
+                    maximum: 100.0
+                  jaccard_similarity:
+                    type: number
+                    format: float
+                    minimum: 0.0
+                    maximum: 1.0
+                  results_stability:
+                    type: number
+                    format: float
+                    minimum: 0.0
+                    maximum: 1.0
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        iteration:
+                          type: integer
+                        top_results:
+                          type: array
+                          items:
+                            type: string
+                            description: Content chunk IDs in result order
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/validation/health:
+    get:
+      summary: Health check
+      description: Check the health status of the validation service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  qdrant_connection:
+                    type: string
+                    enum: [connected, disconnected]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    ValidationReport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        validation_type:
+          type: string
+          enum: [similarity, metadata, consistency, comprehensive]
+        test_queries_count:
+          type: integer
+        total_retrievals:
+          type: integer
+        relevant_results_count:
+          type: integer
+        relevance_percentage:
+          type: number
+          minimum: 0.0
+          maximum: 100.0
+        top_k_accuracy:
+          type: object
+          properties:
+            top_1:
+              type: number
+              minimum: 0.0
+              maximum: 100.0
+            top_3:
+              type: number
+              minimum: 0.0
+              maximum: 100.0
+            top_5:
+              type: number
+              minimum: 0.0
+              maximum: 100.0
+        mean_reciprocal_rank:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        metadata_accuracy:
+          type: number
+          minimum: 0.0
+          maximum: 100.0
+        consistency_score:
+          type: number
+          minimum: 0.0
+          maximum: 100.0
+        jaccard_similarity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        metrics:
+          type: object
+          properties:
+            average_response_time:
+              type: number
+            queries_per_second:
+              type: number
+            error_rate:
+              type: number
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              error_type:
+                type: string
+              error_message:
+                type: string
+              query_id:
+                type: string
+                format: uuid
+              timestamp:
+                type: string
+                format: date-time
+        configuration:
+          type: object
+          properties:
+            similarity_threshold:
+              type: number
+            top_k:
+              type: integer
+            consistency_iterations:
+              type: integer
+        passed_criteria:
+          type: object
+          properties:
+            sc_001_top_3_accuracy:
+              type: boolean
+            sc_002_metadata_accuracy:
+              type: boolean
+            sc_003_consistency:
+              type: boolean
+            sc_004_scale_test:
+              type: boolean
+
+    BadRequestError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Invalid query parameters provided"
+        details:
+          type: object
+
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Not Found"
+        message:
+          type: string
+          example: "Validation ID not found"
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'

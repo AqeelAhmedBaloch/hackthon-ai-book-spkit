@@ -1,0 +1,304 @@
+openapi: 3.0.3
+info:
+  title: Content Ingestion & Embeddings API
+  description: API for extracting content from Docusaurus sites, generating embeddings, and storing in Qdrant
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+
+paths:
+  /api/v1/ingest:
+    post:
+      summary: Start a new content ingestion process
+      description: Initiates content extraction from a Docusaurus site and processes it into embeddings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - url
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: Root URL of the Docusaurus site to ingest
+                  example: "https://example-docusaurus-site.com"
+                chunk_size:
+                  type: integer
+                  default: 500
+                  minimum: 100
+                  maximum: 500
+                  description: Size of content chunks in tokens (max 500 for Cohere)
+                overlap_size:
+                  type: integer
+                  default: 50
+                  minimum: 0
+                  maximum: 100
+                  description: Overlap between chunks in tokens
+                embedding_model:
+                  type: string
+                  default: "embed-multilingual-v3.0"
+                  enum: ["embed-multilingual-v3.0", "embed-english-v3.0"]
+                  description: Cohere embedding model to use
+      responses:
+        '202':
+          description: Ingestion started successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - ingestion_id
+                  - status
+                  - message
+                properties:
+                  ingestion_id:
+                    type: string
+                    format: uuid
+                    description: Unique identifier for the ingestion run
+                  status:
+                    type: string
+                    enum: [pending, processing]
+                    description: Current status of the ingestion
+                  message:
+                    type: string
+                    description: Status message
+                  estimated_duration:
+                    type: string
+                    format: duration
+                    description: Estimated time for completion (ISO 8601 duration)
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/ingest/{ingestion_id}:
+    get:
+      summary: Get ingestion status
+      description: Retrieve the current status and progress of an ingestion run
+      parameters:
+        - name: ingestion_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the ingestion run
+      responses:
+        '200':
+          description: Ingestion status retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionStatus'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/ingest/{ingestion_id}/cancel:
+    post:
+      summary: Cancel an ingestion run
+      description: Cancel a running ingestion process
+      parameters:
+        - name: ingestion_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: Unique identifier of the ingestion run
+      responses:
+        '200':
+          description: Ingestion cancelled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingestion_id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    enum: [cancelled]
+                  message:
+                    type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/vectors:
+    post:
+      summary: Store a vector embedding
+      description: Store a single vector embedding with its associated content and metadata
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - chunk_id
+                - content
+                - embedding
+                - source_url
+              properties:
+                chunk_id:
+                  type: string
+                  format: uuid
+                  description: Unique identifier for the content chunk
+                content:
+                  type: string
+                  description: The text content that was embedded
+                embedding:
+                  type: array
+                  items:
+                    type: number
+                  minItems: 1024
+                  maxItems: 1024
+                  description: The 1024-dimensional embedding vector
+                source_url:
+                  type: string
+                  format: uri
+                  description: Original URL where content was found
+                title:
+                  type: string
+                  description: Title of the content section
+                metadata:
+                  type: object
+                  description: Additional metadata to store with the vector
+      responses:
+        '201':
+          description: Vector stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vector_id:
+                    type: string
+                    format: uuid
+                    description: ID assigned to the stored vector in Qdrant
+                  status:
+                    type: string
+                    enum: [stored]
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /api/v1/health:
+    get:
+      summary: Health check
+      description: Check the health status of the ingestion service
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [healthy]
+                  timestamp:
+                    type: string
+                    format: date-time
+
+components:
+  schemas:
+    IngestionStatus:
+      type: object
+      properties:
+        ingestion_id:
+          type: string
+          format: uuid
+        source_url:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [pending, processing, completed, failed, cancelled]
+        total_pages:
+          type: integer
+          minimum: 0
+        processed_pages:
+          type: integer
+          minimum: 0
+        total_chunks:
+          type: integer
+          minimum: 0
+        stored_vectors:
+          type: integer
+          minimum: 0
+        progress_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        start_time:
+          type: string
+          format: date-time
+        end_time:
+          type: string
+          format: date-time
+        error_log:
+          type: string
+        metadata:
+          type: object
+          properties:
+            chunk_size:
+              type: integer
+            overlap_size:
+              type: integer
+            total_tokens:
+              type: integer
+            embedding_model:
+              type: string
+
+    BadRequestError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Bad Request"
+        message:
+          type: string
+          example: "Invalid URL format provided"
+        details:
+          type: object
+
+    NotFoundError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Not Found"
+        message:
+          type: string
+          example: "Ingestion ID not found"
+
+  responses:
+    BadRequest:
+      description: Bad request - invalid input parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+    Unauthorized:
+      description: Unauthorized - missing or invalid authentication
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
