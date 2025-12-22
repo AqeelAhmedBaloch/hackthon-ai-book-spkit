@@ -1,9 +1,10 @@
 .features {
   padding: 2.1rem 0;
   width: 100%;
-  background: linear-gradient(135deg, #89c6ee, #e0f2fe);
+  background: linear-gradient(135deg, #ffff, #ffff);
   background-size: 300% 300%;
   animation: gradientBG 15s ease infinite;
+  overflow: hidden;
 }
 
 @keyframes gradientBG {
