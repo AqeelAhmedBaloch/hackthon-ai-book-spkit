@@ -169,7 +169,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} AI-Powered Humanoid Robotics Project. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} AI-Powered Humanoid Robotics Project. Built with Docusaurus by Aqeel Ahmed Baloch.`,
     },
     prism: {
       theme: prismThemes.github,
