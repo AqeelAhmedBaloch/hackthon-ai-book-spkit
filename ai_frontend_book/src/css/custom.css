@@ -14,30 +14,247 @@
   --ifm-color-primary-lighter: #1976d2;
   --ifm-color-primary-lightest: #42a5f5;
 
+  --ifm-color-secondary: #64748b;      /* Gray for secondary elements */
+  --ifm-color-secondary-dark: #475569;
+  --ifm-color-secondary-darker: #334155;
+  --ifm-color-secondary-darkest: #1e293b;
+  --ifm-color-secondary-light: #94a3b8;
+  --ifm-color-secondary-lighter: #cbd5e1;
+  --ifm-color-secondary-lightest: #e2e8f0;
+
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  /* Enhanced border radius for modern look */
+  --ifm-global-radius: 10px;
+  --ifm-button-border-radius: 8px;
+  --ifm-card-border-radius: 12px;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
+  --ifm-color-primary: #4db8ff;        /* Lighter blue for dark mode */
+  --ifm-color-primary-dark: #1a8cff;
+  --ifm-color-primary-darker: #0d7afe;
+  --ifm-color-primary-darkest: #0066cc;
+  --ifm-color-primary-light: #7accff;
+  --ifm-color-primary-lighter: #aaddff;
+  --ifm-color-primary-lightest: #d0f0ff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  /* Dark mode specific variables */
+  --ifm-background-color: #0f172a;
+  --ifm-background-surface-color: #1e293b;
+  --ifm-text-color: #f1f5f9;
+  --ifm-border-color: #334155;
+}
+
+/* Add smooth theme transitions */
+[data-theme='light'],
+[data-theme='dark'] {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Enhanced dark mode styles for various components */
+[data-theme='dark'] .navbar {
+  background: rgba(15, 23, 42, 0.97) !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+[data-theme='dark'] .footer {
+  background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+  border-top: 1px solid #334155 !important;
+}
+
+[data-theme='dark'] .card {
+  border: 1px solid #334155 !important;
+}
+
+[data-theme='dark'] .chatbot-window {
+  background-color: #1e293b;
+}
+
+[data-theme='dark'] .chatbot-messages {
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+}
+
+[data-theme='dark'] .chatbot-message-assistant .chatbot-message-content {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
 }
 
 /* Make secondary button blue with white text */
 .button--secondary {
-  background-color: #007bff !important; /* Blue */
-  color: #ffffff !important;            /* White text */
+  background: linear-gradient(135deg, #007bff, #0d6efd) !important;
+  color: #ffffff !important;
   border-color: #007bff !important;
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.25) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  border: none !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.button--secondary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.8s;
+}
+
+.button--secondary:hover::before {
+  left: 100%;
 }
 
 .button--secondary:hover {
-  background-color: #0056b3 !important; /* Darker blue */
+  background: linear-gradient(135deg, #0056b3, #0b5ed7) !important;
   color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.35) !important;
+}
+
+/* Enhanced button styles */
+.button {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.8s;
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+/* Enhanced typography for better readability */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.markdown h1 {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+/* Enhanced code blocks */
+.code-block {
+  border-radius: 10px !important;
+  border: 1px solid var(--ifm-color-emphasis-200) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Enhanced navigation */
+.navbar {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  backdrop-filter: blur(12px) !important;
+  background: rgba(255, 255, 255, 0.97) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Enhanced footer */
+.footer {
+  background: linear-gradient(135deg, #bfbfbf, #9ecfff) !important;
+  border-top: 1px solid var(--ifm-color-emphasis-200) !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Enhanced cards and content blocks */
+.card {
+  border-radius: 14px !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.09) !important;
+  border: 1px solid var(--ifm-color-emphasis-200) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Enhanced sidebar */
+.menu {
+  border-right: 1px solid var(--ifm-color-emphasis-200) !important;
+}
+
+/* Control scrolling behavior */
+html {
+  scroll-behavior: smooth !important;
+  overflow-x: hidden;
+}
+
+/* Body styling to reduce excessive scrolling */
+body {
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Enhanced focus states for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--ifm-color-primary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(var(--ifm-color-primary-rgb), 0.15) !important;
+}
+
+/* Enhanced table styling */
+.table {
+  border-radius: 8px !important;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Enhanced link styling */
+.navbar__link,
+.menu__link,
+.table-of-contents__link {
+  transition: all 0.2s ease !important;
+}
+
+.navbar__link:hover,
+.menu__link:hover,
+.table-of-contents__link:hover {
+  color: var(--ifm-color-primary) !important;
+}
+
+/* Enhanced image styling */
+img {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced container spacing */
+.container {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
 }

@@ -8,11 +8,25 @@
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #525dde, #e0f2fe);
+  background-size: 400% 400%;
+  animation: gradientBG 20s ease infinite;
+  min-height: 30vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 2rem;
+    padding: 5rem 2rem;
+    min-height: auto;
   }
 }
 
@@ -20,4 +34,91 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+/* Enhanced hero title styling */
+.hero__title {
+  font-size: 3.5rem !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.04em !important;
+  line-height: 1.1 !important;
+  margin-bottom: 1rem !important;
+  background: linear-gradient(135deg, #0d47a1, #4f46e5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced hero subtitle styling */
+.hero__subtitle {
+  font-size: 1.5rem !important;
+  color: #374151 !important;
+  font-weight: 400 !important;
+  line-height: 1.5 !important;
+  max-width: 700px !important;
+  margin: 0 auto 2rem !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Enhanced button styling for the hero section */
+.button--lg {
+  font-size: 1.1rem !important;
+  padding: 1rem 2rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3) !important;
+  transition: all 0.2s ease !important;
+  font-weight: 500 !important;
+  border: none !important;
+}
+
+.button--lg:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 25px rgba(79, 70, 229, 0.4) !important;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 996px) {
+  .heroBanner {
+    padding: 3rem 2rem;
+  }
+
+  .hero__title {
+    font-size: 2.5rem !important;
+  }
+
+  .hero__subtitle {
+    font-size: 1.25rem !important;
+  }
+
+  .button--lg {
+    font-size: 1rem !important;
+    padding: 0.875rem 1.75rem !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .heroBanner {
+    padding: 3rem 1.5rem;
+  }
+
+  .hero__title {
+    font-size: 2rem !important;
+  }
+
+  .hero__subtitle {
+    font-size: 1.1rem !important;
+  }
+
+  .button--lg {
+    font-size: 1rem !important;
+    padding: 0.875rem 1.75rem !important;
+  }
+
+  .buttons {
+    flex-direction: column;
+    gap: 1rem;
+  }
 }
