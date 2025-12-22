@@ -1,7 +1,7 @@
 .features {
   padding: 2.1rem 0;
   width: 100%;
-  background: linear-gradient(135deg, #ffff, #ffff);
+  background: linear-gradient(135deg, #ffffff, #ffffff);
   background-size: 300% 300%;
   animation: gradientBG 15s ease infinite;
   overflow: hidden;
@@ -64,64 +64,6 @@
   font-weight: 450;
 }
 
-/* Responsive adjustments */
-@media screen and (max-width: 996px) {
-  .features {
-    padding: 5rem 0;
-  }
-
-  .featureTitle {
-    font-size: 1.75rem;
-  }
-
-  .featureDescription {
-    font-size: 1.05rem;
-    line-height: 1.65;
-    padding: 0 1rem;
-  }
-
-  .featureSvg {
-    height: 140px;
-    width: 140px;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .features {
-    padding: 4rem 0;
-  }
-
-  .featureTitle {
-    font-size: 1.5rem;
-  }
-
-  .featureDescription {
-    font-size: 1rem;
-    line-height: 1.6;
-    padding: 0 0.75rem;
-  }
-
-  .featureSvg {
-    height: 120px;
-    width: 120px;
-  }
-
-  .featureTitle::after {
-    width: 50px;
-    height: 2px;
-    bottom: -8px;
-  }
-}
-
-.introductionText {
-  color: #000000; /* Black color */
-  font-size: 20px; /* Font size of 20 */
-  font-style: bold;
-  text-align: center;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
-}
-
 .featureCard {
   height: 100%;
   display: flex;
@@ -154,6 +96,7 @@
   flex-grow: 1;
 }
 
+/* Responsive adjustments */
 @media screen and (max-width: 996px) {
   .features {
     padding: 5rem 0;
