@@ -182,7 +182,7 @@
   background: linear-gradient(135deg, #bfbfbf, #9ecfff) !important;
   border-top: 1px solid var(--ifm-color-emphasis-200) !important;
   padding-top: 0.1rem !important;
-  padding-bottom: 0.5rem !important;
+  padding-bottom: 0.3rem !important;
 }
 
 /* Enhanced cards and content blocks */

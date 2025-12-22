@@ -1,8 +1,5 @@
 .features {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.6rem 0;
+  padding: 2.1rem 0;
   width: 100%;
   background: linear-gradient(135deg, #89c6ee, #e0f2fe);
   background-size: 300% 300%;
@@ -18,7 +15,7 @@
 .featureSvg {
   height: 160px;
   width: 160px;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   opacity: 0.85;
   filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.05));
   transition: transform 0.3s ease;
@@ -115,6 +112,111 @@
   }
 }
 
+.introductionText {
+  color: #000000; /* Black color */
+  font-size: 20px; /* Font size of 20 */
+  font-style: bold;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.featureCard {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin: 1rem;
+  min-height: 180px; /* Further reduced height for the cards */
+}
+
+.featureCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.cardTitle {
+  color: #1e3a8a;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.cardDescription {
+  color: #4b5563;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+  flex-grow: 1;
+}
+
+@media screen and (max-width: 996px) {
+  .features {
+    padding: 5rem 0;
+  }
+
+  .featureTitle {
+    font-size: 1.75rem;
+  }
+
+  .featureDescription {
+    font-size: 1.05rem;
+    line-height: 1.65;
+    padding: 0 1rem;
+  }
+
+  .featureSvg {
+    height: 140px;
+    width: 140px;
+  }
+
+  .featureCard {
+    margin: 0.75rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .features {
+    padding: 4rem 0;
+  }
+
+  .featureTitle {
+    font-size: 1.5rem;
+  }
+
+  .featureDescription {
+    font-size: 1rem;
+    line-height: 1.6;
+    padding: 0 0.75rem;
+  }
+
+  .featureSvg {
+    height: 120px;
+    width: 120px;
+  }
+
+  .featureTitle::after {
+    width: 50px;
+    height: 2px;
+    bottom: -8px;
+  }
+
+  .featureCard {
+    margin: 0.5rem;
+  }
+
+  .cardTitle {
+    font-size: 1.1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.9rem;
+  }
+}
+
 @media screen and (max-width: 480px) {
   .features {
     padding: 3rem 0;
@@ -133,5 +235,17 @@
   .featureSvg {
     height: 100px;
     width: 100px;
+  }
+
+  .featureCard {
+    margin: 0.25rem;
+  }
+
+  .cardTitle {
+    font-size: 1rem;
+  }
+
+  .cardDescription {
+    font-size: 0.85rem;
   }
 }
