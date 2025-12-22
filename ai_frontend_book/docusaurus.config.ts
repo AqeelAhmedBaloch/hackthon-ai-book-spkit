@@ -88,6 +88,7 @@ const config: Config = {
     colorMode: {
       respectPrefersColorScheme: true,
     },
+    // Add any additional configuration needed for deployment
     navbar: {
       title: 'AI-Powered Humanoid Robotics Textbook',
       logo: {
