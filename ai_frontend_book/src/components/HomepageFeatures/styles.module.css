@@ -1,14 +1,16 @@
 .features {
   display: flex;
   align-items: center;
-  padding: 2rem 0;
+  justify-content: center;
+  padding: 5.5rem 0;
   width: 100%;
-  background-color: #f8fafc; /* Light background for contrast */
+  background-color: #aeb7c1; /* Light background for contrast */
+  /* background-color: #f8fafc;  */
 }
 
 .featureSvg {
-  height: 150px;
-  width: 150px;
+  height: 175px;
+  width: 175px;
   margin-bottom: 1.5rem;
   opacity: 0.8; /* Subtle appearance to not distract from text */
 }
@@ -26,7 +28,6 @@
 }
 
 .featureDescription {
-  font-family: 'Times New Roman', serif;
   font-size: 1.1rem;
   line-height: 1.7; /* Improved line spacing for readability */
   color: #1e293b; /* Dark gray for better readability */
