@@ -103,7 +103,7 @@ const config: Config = {
           label: 'TextBook',
         },
         {
-          href: '/login',
+          to: '/login',
           label: 'Login',
           position: 'right',
         },
