@@ -1,9 +1,0 @@
-fastapi
-uvicorn
-python-dotenv
-cohere
-qdrant-client
-openai
-python-multipart
-slowapi
-markdown
