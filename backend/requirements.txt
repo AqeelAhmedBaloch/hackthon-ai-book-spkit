@@ -1,0 +1,7 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+cohere==4.34
+qdrant-client==1.9.0
+python-dotenv==1.0.0
+markdown==3.5.1
+PyYAML==6.0.1
