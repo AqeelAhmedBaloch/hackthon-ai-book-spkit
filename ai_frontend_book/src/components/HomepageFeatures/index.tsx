@@ -21,7 +21,7 @@ const FeatureList: FeatureItem[] = [
     to: '/docs/module1/intro',
   },
   {
-    title: 'Module 2: The Digital Twin (Gazebo & Unity)',
+    title: 'Module 2: The Digital Twin (Gazebo & Unit)',
     description: (
       <>
         Master simulated environments with Gazebo physics and Unity interaction to test and validate AI-robot systems without requiring physical hardware.
