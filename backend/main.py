@@ -4,15 +4,10 @@ from agent import RAGAgent
 import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 
 # Load environment variables
 load_dotenv()
 
-# Initialize rate limiter
-limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="RAG Chatbot API",
     description="API for the RAG chatbot integrated into the Physical AI & Humanoid Robotics book",
@@ -33,10 +28,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add rate limiting
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
 # Initialize the RAG agent
 rag_agent = RAGAgent()
 
@@ -49,8 +40,7 @@ class AnswerResponse(BaseModel):
     sources: list[str]
 
 @app.post("/query", response_model=AnswerResponse)
-@limiter.limit("10/minute")  # Limit to 10 requests per minute per IP
-async def query(request, question_request: QuestionRequest):
+async def query(question_request: QuestionRequest):
     """
     Submit a question and receive an answer based on the book content or selected text.
     If selected_text is provided, answer only from that text.
@@ -62,9 +52,34 @@ async def query(request, question_request: QuestionRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/ingest")
+async def ingest_content():
+    """
+    Ingest book content from docs directory into the vector database.
+    This endpoint processes all markdown files from the docs directory and stores them
+    in the Qdrant vector database for semantic search.
+    """
+    try:
+        from ingest_content import ingest_docs_content
+        import threading
+
+        # Run ingestion in a separate thread to avoid blocking
+        def run_ingestion():
+            try:
+                ingest_docs_content()
+            except Exception as e:
+                print(f"Ingestion error: {str(e)}")
+
+        thread = threading.Thread(target=run_ingestion)
+        thread.start()
+
+        return {"status": "ingestion started", "message": "Book content ingestion process initiated"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Ingestion failed: {str(e)}")
+
+
 @app.get("/health")
-@limiter.limit("30/minute")  # Limit to 30 requests per minute per IP for health checks
-async def health_check(request):
+async def health_check():
     """
     Health check endpoint to verify the service is running.
     """

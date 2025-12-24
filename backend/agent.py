@@ -43,7 +43,11 @@ class RAGAgent:
         """
         Generate embeddings for the given text using Cohere.
         """
-        response = self.cohere_client.embed(texts=[text], model="embed-english-v3.0")
+        response = self.cohere_client.embed(
+            texts=[text],
+            model="embed-english-v3.0",
+            input_type="search_document"  # Specify the input type for document search
+        )
         return response.embeddings[0]
 
     def store_content(self, content: str, metadata: dict = None):
@@ -79,22 +83,41 @@ class RAGAgent:
         Retrieve relevant book content based on the query.
         """
         # Generate embedding for the query
-        query_embedding = self.embed_text(query)
-
-        # Search in Qdrant
-        search_results = self.qdrant_client.search(
-            collection_name=self.collection_name,
-            query_vector=query_embedding,
-            limit=limit
+        response = self.cohere_client.embed(
+            texts=[query],
+            model="embed-english-v3.0",
+            input_type="search_query"  # Specify the input type for search queries
         )
+        query_embedding = response.embeddings[0]
+
+        # Search in Qdrant using query_points method
+        search_results = self.qdrant_client.query_points(
+            collection_name=self.collection_name,
+            query=query_embedding,
+            limit=limit
+        ).points
 
         # Extract content from results
         relevant_content = []
         for result in search_results:
+            # Check the actual payload structure
+            payload = result.payload
+            # Based on testing, content is stored in 'text' field, not 'content' field
+            content = payload.get("text", "")
+            if not content:
+                # Fallback: try 'content' field if 'text' doesn't exist
+                content = payload.get("content", "")
+
+            # If still no content, try to find the longest string in the payload
+            if not content and isinstance(payload, dict):
+                for key, value in payload.items():
+                    if isinstance(value, str) and len(value) > len(content):  # Find longest string
+                        content = value
+
             relevant_content.append({
-                "content": result.payload["content"],
+                "content": content,
                 "score": result.score,
-                "metadata": {k: v for k, v in result.payload.items() if k != "content"}
+                "metadata": {k: v for k, v in payload.items()}  # Include all metadata
             })
 
         return relevant_content
@@ -106,8 +129,8 @@ class RAGAgent:
         # Prepare context for the model
         context_str = "\n\n".join([item["content"] for item in context])
 
-        # Create a prompt for the model
-        prompt = f"""
+        # Create a message for the model using Chat API
+        message = f"""
         You are an assistant for the Physical AI & Humanoid Robotics book.
         Answer the user's question based only on the provided context from the book.
 
@@ -119,15 +142,19 @@ class RAGAgent:
         Answer:
         """
 
-        # Use Cohere to generate the answer
-        response = self.cohere_client.generate(
-            model="command",
-            prompt=prompt,
-            max_tokens=300,
-            temperature=0.3
-        )
-
-        return response.generations[0].text.strip()
+        # Use Cohere's Chat API instead of the deprecated Generate API
+        try:
+            response = self.cohere_client.chat(
+                model="command-r",
+                message=message,
+                max_tokens=300,
+                temperature=0.3
+            )
+            return response.text.strip()
+        except Exception as e:
+            # If Cohere API fails, return a message with the context that was found
+            context_str = "\n\n".join([item["content"] for item in context])
+            return f"Found relevant information but couldn't generate a response: {context_str[:500]}..."
 
     def get_answer(self, question: str, selected_text: str = None) -> Tuple[str, List[str]]:
         """
@@ -174,12 +201,15 @@ class RAGAgent:
         Answer:
         """
 
-        # Use Cohere to generate the answer
-        response = self.cohere_client.generate(
-            model="command",
-            prompt=prompt,
-            max_tokens=300,
-            temperature=0.3
-        )
-
-        return response.generations[0].text.strip()
+        # Use Cohere's Chat API instead of the deprecated Generate API
+        try:
+            response = self.cohere_client.chat(
+                model="command-r",
+                message=prompt,
+                max_tokens=300,
+                temperature=0.3
+            )
+            return response.text.strip()
+        except Exception as e:
+            # If Cohere API fails, return a message with the context that was found
+            return f"Found relevant information but couldn't generate a response from the selected text."

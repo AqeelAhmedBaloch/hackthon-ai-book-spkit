@@ -6,3 +6,4 @@ qdrant-client
 openai
 python-multipart
 slowapi
+markdown

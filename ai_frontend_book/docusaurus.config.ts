@@ -125,19 +125,19 @@ const config: Config = {
               to: '/docs/intro',
             },
             {
-              label: 'Module 1:',
+              label: 'The Robotic Nervous System (ROS 2)',
               to: '/docs/module1/intro',
             },
             {
-              label: 'Module 2:',
+              label: 'The Digital Twin (Gazebo & Unity)',
               to: '/docs/module2/intro',
             },
             {
-              label: 'Module 3:',
+              label: 'The AI-Robot Brain (NVIDIA Isaac™)',
               to: '/docs/module3/intro',
             },
             {
-              label: 'Module 4:',
+              label: 'Vision-Language-Action (VLA)',
               to: '/docs/module4/intro',
             },
           ],
@@ -165,6 +165,10 @@ const config: Config = {
             {
               label: 'GitHub',
               href: 'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit',
+            },
+            {
+              label: 'LinkedIn',
+              href: 'https://www.linkedin.com/in/aa-baloch',
             },
           ],
         },
