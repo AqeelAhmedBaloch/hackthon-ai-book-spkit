@@ -1,8 +1,12 @@
 {
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
+<<<<<<< Updated upstream
     "baseUrl": "./",
     "ignoreDeprecations": "6.0"
+=======
+    "baseUrl": "./"
+>>>>>>> Stashed changes
   },
   "exclude": [".docusaurus", "build", "node_modules"]
 }
