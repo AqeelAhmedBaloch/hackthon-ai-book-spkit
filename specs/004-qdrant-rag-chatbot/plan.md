@@ -1,43 +1,40 @@
-# Implementation Plan: Integrated RAG Chatbot for Physical AI & Humanoid Robotics Book (Sitemap-based)
+# Implementation Plan: Enhanced Sitemap Source Fetching and Validation
 
-**Branch**: `005-rag-chatbot` | **Date**: 2025-12-26 | **Spec**: [specs/004-qdrant-rag-chatbot/spec.md](../004-qdrant-rag-chatbot/spec.md)
+**Branch**: `005-sitemap-enhancement` | **Date**: 2025-12-26 | **Spec**: [specs/004-qdrant-rag-chatbot/spec.md](../004-qdrant-rag-chatbot/spec.md)
 
 **Note**: This template is filled in by the `/sp.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
 
 ## Summary
 
-Build an embedded RAG chatbot that answers questions strictly from book content stored in Qdrant. The system will use sitemap-based ingestion to extract book content, create vector embeddings using Cohere, store them in Qdrant, and provide a FastAPI backend with an Agent SDK-based RAG system that returns answers sourced only from the book content.
+Implement enhanced sitemap fetching and validation functionality that can handle XML, XML.GZ, and sitemap index formats. The system will validate content-type before parsing, support compressed sitemap files, and extract URLs from HTML responses when needed. This will improve the reliability and robustness of the book content ingestion process.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11
-**Primary Dependencies**: FastAPI, Anthropic Agent SDK, Cohere, Qdrant, uv
-**Storage**: Qdrant Cloud vector database
+**Primary Dependencies**: requests, xml.etree.ElementTree, gzip, BeautifulSoup4, urllib
+**Storage**: In-memory processing for sitemap URLs
 **Testing**: pytest
 **Target Platform**: Linux server
-**Project Type**: web
-**Performance Goals**: <10 seconds response time for user queries
-**Constraints**: No external knowledge beyond book content, no hallucinated answers, proper attribution to book sections
-**Scale/Scope**: Single book content, multiple concurrent users
+**Performance Goals**: <5 seconds to fetch and parse typical sitemap
+**Constraints**: Must handle various sitemap formats without breaking existing functionality, proper error handling and logging
+**Scale/Scope**: Single sitemap source per ingestion run, multiple URLs extracted per sitemap
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 Based on the project constitution, this implementation follows the principles of:
-- Using secure environment variables for configuration (COHERE_API_KEY, QDRANT_URL, QDRANT_API_KEY, QDRANT_COLLECTION_NAME)
-- Maintaining clear separation between frontend and backend components
-- Implementing proper error handling and fallback responses ("This topic is not covered in the book")
-- Ensuring data integrity and source attribution with chapter/section references
-- Following security best practices for API keys and sensitive data
-- Validating that responses are sourced only from book content with no hallucinated answers
-- Implementing proper validation for user inputs and system responses
+- Using secure and robust code practices for external content fetching
+- Maintaining clear separation between ingestion and processing components
+- Implementing proper error handling and fallback responses
+- Ensuring data integrity and proper validation of external sources
+- Following security best practices for handling external URLs and content
+- Implementing proper validation for input sources and system responses
 - Ensuring proper logging and monitoring practices
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
 specs/004-qdrant-rag-chatbot/
 ├── plan.md              # This file (/sp.plan command output)
@@ -49,7 +46,6 @@ specs/004-qdrant-rag-chatbot/
 ```
 
 ### Source Code (repository root)
-
 ```text
 backend/
 ├── src/
@@ -67,7 +63,8 @@ backend/
 │   │   └── rag_service.py
 │   └── utils/
 │       ├── text_splitter.py
-│       └── html_parser.py
+│       ├── html_parser.py
+│       └── sitemap_parser.py        # NEW: Enhanced sitemap handling
 ├── tests/
 │   ├── unit/
 │   ├── integration/
@@ -85,5 +82,5 @@ backend/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Multiple service files | Modularity and maintainability | Single file would be too complex to maintain |
-| External dependencies (Cohere, Qdrant) | Required by feature specification | Feature specifically requires these technologies |
+| Multiple utility files | Modularity and maintainability | Single file would be too complex to maintain |
+| External dependencies (BeautifulSoup4) | Required for HTML parsing when sitemap is in HTML format | Feature specifically requires HTML parsing capabilities |

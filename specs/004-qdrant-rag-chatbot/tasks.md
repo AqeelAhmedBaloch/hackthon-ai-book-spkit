@@ -1,10 +1,10 @@
 ---
-description: "Task list for Integrated RAG Chatbot for Physical AI & Humanoid Robotics Book"
+description: "Task list for Enhanced Sitemap Handling in RAG Chatbot for Physical AI & Humanoid Robotics Book"
 ---
 
-# Tasks: Integrated RAG Chatbot for Physical AI & Humanoid Robotics Book (Backend-only)
+# Tasks: Enhanced Sitemap Handling for RAG Chatbot
 
-**Input**: Design documents from `/specs/004-qdrant-rag-chatbot/`
+**Input**: Sitemap handling requirements - validate content-type, support .xml/.xml.gz formats, handle HTML sitemaps
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -25,11 +25,8 @@ description: "Task list for Integrated RAG Chatbot for Physical AI & Humanoid Ro
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create backend/ directory at project root
-- [X] T002 Initialize Python 3.11 project with FastAPI, Cohere, Qdrant, Agent SDK dependencies in backend/pyproject.toml
-- [X] T003 [P] Create core backend files: main.py, agent.py, ingest.py, config.py in backend/
-- [X] T004 Create .env.example file with required environment variables in backend/
-- [X] T005 Create directory structure: backend/{models,services,utils}
+- [X] T001 Update dependencies in backend/pyproject.toml to include gzip and content-type handling libraries if needed
+- [X] T002 Create sitemap utility module backend/utils/sitemap_parser.py for enhanced sitemap processing
 
 ---
 
@@ -39,112 +36,122 @@ description: "Task list for Integrated RAG Chatbot for Physical AI & Humanoid Ro
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T006 Implement config.py to load environment variables from .env in backend/config.py
-- [X] T007 [P] Create BookContent, UserQuery, and Response models in backend/models/
-- [X] T008 [P] Create Qdrant service to handle vector database operations in backend/services/qdrant_service.py
-- [X] T009 [P] Create embedding service using Cohere in backend/services/embedding_service.py
-- [X] T101 Create text splitter utility for 300-800 token chunks in backend/utils/text_splitter.py
-- [X] T102 Create HTML parser utility to extract book content in backend/utils/html_parser.py
-- [X] T103 Setup FastAPI application structure in backend/main.py
-- [X] T104 [P] Create ingestion service framework in backend/services/ingestion_service.py
+- [X] T003 Implement content-type validation logic in backend/utils/sitemap_parser.py
+- [X] T004 [P] Implement gzip decompression support for .xml.gz sitemap files in backend/utils/sitemap_parser.py
+- [X] T005 [P] Implement HTML sitemap URL extraction logic in backend/utils/sitemap_parser.py
+- [X] T006 [P] Implement recursive sitemap index processing in backend/utils/sitemap_parser.py
+- [X] T007 Update existing ingestion service to use new sitemap parser in backend/services/ingestion_service.py
+- [X] T008 Update existing ingest.py to use new sitemap parser in backend/ingest.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Ask Questions About Book Content (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Enhanced Sitemap Response Validation (Priority: P1) 🎯 MVP
 
-**Goal**: Enable users to ask questions about book content and receive accurate answers based solely on the book content
+**Goal**: Implement validation of sitemap response content-type before XML parsing to prevent errors
 
-**Independent Test**: The user can ask a question about a specific concept in the book and receive an accurate answer that is sourced from the book content. If the topic isn't covered in the book, the system responds with "This topic is not covered in the book".
+**Independent Test**: The system correctly identifies the content-type of sitemap responses and validates it before attempting to parse as XML. Invalid content-types are logged and handled gracefully.
 
 ### Implementation for User Story 1
 
-- [X] T105 [P] [US1] Implement RAG service in backend/services/rag_service.py
-- [X] T106 [US1] Implement agent.py using Agent SDK to process queries
-- [X] T107 [US1] Create POST /chat endpoint in backend/main.py
-- [X] T108 [US1] Implement query validation logic for question field
-- [X] T109 [US1] Implement fallback response logic: "This topic is not covered in the book"
-- [X] T110 [US1] Add proper attribution to book chapters/sections in responses
-- [X] T111 [US1] Add response time validation (under 10 seconds)
+- [X] T009 [P] [US1] Add content-type header checking to sitemap response validation in backend/utils/sitemap_parser.py
+- [X] T010 [US1] Implement XML content-type detection (application/xml, text/xml) in backend/utils/sitemap_parser.py
+- [X] T011 [US1] Add proper error logging when content-type is not XML-appropriate in backend/utils/sitemap_parser.py
+- [X] T012 [US1] Create fallback mechanism for content-type mismatches in backend/utils/sitemap_parser.py
+- [X] T013 [US1] Update ingestion service to handle content-type validation errors gracefully in backend/services/ingestion_service.py
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Access Contextual Book Information (Priority: P2)
+## Phase 4: User Story 2 - Support .xml and .xml.gz Sitemap Formats (Priority: P1)
 
-**Goal**: Enable users to get detailed information about specific chapters, sections, or topics from the book with proper attribution
+**Goal**: Enable the system to handle both regular XML sitemaps and gzip-compressed XML sitemaps
 
-**Independent Test**: The user can ask for specific chapter information or detailed explanations of concepts and receive responses that include proper attribution to book sections and page references.
+**Independent Test**: The system successfully processes both .xml and .xml.gz sitemap formats, automatically detecting and decompressing gzip files when needed.
 
 ### Implementation for User Story 2
 
-- [X] T112 [P] [US2] Enhance RAG service to retrieve specific chapter/section content
-- [X] T113 [US2] Add chapter and section reference extraction to response formatting
-- [X] T114 [US2] Implement query processing for specific book sections
-- [X] T115 [US2] Add source URL attribution to responses
-- [X] T116 [US2] Validate that responses are properly attributed to book content
+- [X] T014 [P] [US2] Implement automatic detection of gzip-compressed sitemap responses in backend/utils/sitemap_parser.py
+- [X] T015 [US2] Add gzip decompression functionality for .xml.gz files in backend/utils/sitemap_parser.py
+- [X] T016 [US2] Implement proper content detection based on response headers and content in backend/utils/sitemap_parser.py
+- [X] T017 [US2] Add error handling for corrupted gzip files in backend/utils/sitemap_parser.py
+- [X] T018 [US2] Update ingestion service to handle both XML and compressed sitemap formats in backend/services/ingestion_service.py
+- [X] T019 [US2] Update main ingest.py to handle both XML and compressed sitemap formats in backend/ingest.py
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Sitemap-Based Book Ingestion (Priority: P1)
+## Phase 5: User Story 3 - HTML Sitemap URL Extraction (Priority: P1)
 
-**Goal**: Implement ingestion system that fetches book content from sitemap.xml, processes it, and stores in Qdrant
+**Goal**: When sitemap response is HTML, extract valid sitemap URLs from the page content
 
-**Independent Test**: The ingestion process successfully processes all book content into appropriately sized chunks (300-800 tokens) and stores them in the vector database with required metadata.
+**Independent Test**: The system detects HTML responses instead of XML, parses the HTML to find sitemap URLs, and processes them appropriately.
 
 ### Implementation for User Story 3
 
-- [X] T117 [P] [US3] Implement sitemap parsing to extract book page URLs in backend/services/ingestion_service.py
-- [X] T118 [US3] Add HTTP client to fetch book page content from URLs
-- [X] T119 [US3] Implement content extraction to get main book text (exclude navigation/footer)
-- [X] T120 [US3] Integrate text splitter to create 300-800 token chunks
-- [X] T121 [US3] Generate embeddings using Cohere service for each chunk
-- [X] T122 [US3] Ensure Qdrant collection exists (create if missing)
-- [X] T123 [US3] Implement upsert of embeddings with payload (text, chapter, section, book_title, source_url) into Qdrant
-- [X] T124 [US3] Create command-line interface for ingest.py to run as one-time manual script
-- [X] T125 [US3] Add validation that Qdrant collection contains vectors with metadata (count > 0)
+- [X] T020 [P] [US3] Implement HTML response detection logic in backend/utils/sitemap_parser.py
+- [X] T021 [US3] Add HTML parsing to extract sitemap URLs using BeautifulSoup in backend/utils/sitemap_parser.py
+- [X] T022 [US3] Implement regex-based URL extraction for HTML sitemaps in backend/utils/sitemap_parser.py
+- [X] T023 [US3] Add support for extracting sitemap links from HTML <link> tags in backend/utils/sitemap_parser.py
+- [X] T024 [US3] Create fallback to HTML parsing when XML parsing fails in backend/utils/sitemap_parser.py
+- [X] T025 [US3] Update ingestion service to handle HTML sitemap extraction in backend/services/ingestion_service.py
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Validation & Readiness (Priority: P2)
+## Phase 6: User Story 4 - Enhanced Sitemap Index Support (Priority: P2)
 
-**Goal**: Verify system functionality and data persistence
+**Goal**: Improve sitemap index processing to handle nested sitemaps and complex sitemap structures
 
-**Independent Test**: Qdrant data persistence is verified and system meets all success criteria.
+**Independent Test**: The system processes sitemap index files, recursively follows nested sitemaps, and extracts all URLs from the complete sitemap structure.
 
-### Implementation for Validation & Readiness
+### Implementation for User Story 4
 
-- [X] T126 [P] [US4] Verify Qdrant data persistence and content integrity
-- [X] T127 [US4] Test that 95% of valid questions return relevant answers sourced from book
-- [X] T128 [US4] Validate that 100% of non-covered topics return exact fallback response
-- [X] T129 [US4] Verify all required metadata is stored in Qdrant (text, chapter, section, book_title, source)
-- [X] T130 [US4] Run end-to-end integration tests
-- [X] T131 [US4] Validate zero hallucinated answers during testing scenarios
-- [X] T132 [US4] Performance test to ensure responses within 10 seconds
-- [X] T133 [US4] Run quickstart.md validation steps
+- [X] T026 [P] [US4] Enhance sitemap index detection and parsing in backend/utils/sitemap_parser.py
+- [X] T027 [US4] Implement recursive processing of nested sitemaps in backend/utils/sitemap_parser.py
+- [X] T028 [US4] Add rate limiting and timeout handling for recursive sitemap processing in backend/utils/sitemap_parser.py
+- [X] T029 [US4] Implement circular reference detection to prevent infinite loops in backend/utils/sitemap_parser.py
+- [X] T030 [US4] Update ingestion service to use enhanced sitemap index processing in backend/services/ingestion_service.py
+
+**Checkpoint**: Complete enhanced sitemap functionality ready for testing
+
+---
+
+## Phase 7: Validation & Integration (Priority: P2)
+
+**Goal**: Verify enhanced sitemap functionality works correctly with existing ingestion pipeline
+
+**Independent Test**: All enhanced sitemap features work correctly with the existing ingestion pipeline without breaking current functionality.
+
+### Implementation for Validation & Integration
+
+- [X] T031 [P] [US5] Create unit tests for content-type validation in backend/tests/unit/test_sitemap_parser.py
+- [X] T032 [US5] Create unit tests for gzip decompression functionality in backend/tests/unit/test_sitemap_parser.py
+- [X] T033 [US5] Create unit tests for HTML sitemap URL extraction in backend/tests/unit/test_sitemap_parser.py
+- [X] T034 [US5] Create unit tests for sitemap index processing in backend/tests/unit/test_sitemap_parser.py
+- [X] T035 [US5] Perform integration testing with various sitemap formats in backend/tests/integration/
+- [X] T036 [US5] Validate backward compatibility with existing sitemap functionality in backend/ingest.py
+- [X] T037 [US5] Run end-to-end ingestion test with enhanced sitemap features
+- [X] T038 [US5] Verify error handling and logging work correctly for all sitemap scenarios
 
 **Checkpoint**: Complete system validation and readiness for deployment
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T134 [P] Documentation updates in backend/README.md
-- [X] T135 Error handling and logging implementation across all services
-- [X] T136 Input validation and security hardening
-- [X] T137 [P] Add unit tests in backend/tests/unit/
-- [X] T138 Add integration tests in backend/tests/integration/
-- [X] T139 Performance optimization across all services
-- [X] T140 Security validation and hardening
-- [X] T141 Run complete system validation
+- [X] T039 [P] Update documentation in backend/README.md to reflect enhanced sitemap capabilities
+- [X] T040 Add comprehensive error handling and logging across all sitemap processing functions
+- [X] T041 [P] Add input validation and security hardening to sitemap processing
+- [X] T042 Add performance monitoring for sitemap processing operations
+- [X] T043 Update configuration to support sitemap processing options in backend/config.py
+- [X] T044 Run complete system validation with various sitemap types
 
 ---
 
@@ -162,9 +169,10 @@ description: "Task list for Integrated RAG Chatbot for Physical AI & Humanoid Ro
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 components
+- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 3 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 4 (P2)**: Can start after US1, US2, and US3 are complete
+- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 5 (P2)**: Can start after US1, US2, US3, and US4 are complete
 
 ### Within Each User Story
 
@@ -184,33 +192,35 @@ description: "Task list for Integrated RAG Chatbot for Physical AI & Humanoid Ro
 
 ```bash
 # Launch all components for User Story 1 together:
-Task: "Implement RAG service in backend/services/rag_service.py"
-Task: "Implement agent.py using Agent SDK to process queries"
-Task: "Create POST /chat endpoint in backend/main.py"
+Task: "Add content-type header checking to sitemap response validation"
+Task: "Implement XML content-type detection"
+Task: "Add proper error logging when content-type is not XML-appropriate"
 ```
 
 ---
 
 ## Implementation Strategy
 
-### MVP First (User Stories 1 and 3 Only)
+### MVP First (User Stories 1, 2 and 3 Only)
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. Complete Phase 5: User Story 3 (ingestion)
-5. **STOP and VALIDATE**: Test core functionality independently
-6. Deploy/demo if ready
+3. Complete Phase 3: User Story 1 (content-type validation)
+4. Complete Phase 4: User Story 2 (gzip support)
+5. Complete Phase 5: User Story 3 (HTML extraction)
+6. **STOP and VALIDATE**: Test core functionality independently
+7. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 3 → Test independently → Deploy/Demo
-4. Add User Story 2 → Test independently → Deploy/Demo
-5. Add Validation & Readiness → Test independently → Deploy/Demo
-6. Add Polish phase → Final validation → Production ready
-7. Each story adds value without breaking previous stories
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Add User Story 4 → Test independently → Deploy/Demo
+6. Add Validation & Integration → Test independently → Deploy/Demo
+7. Add Polish phase → Final validation → Production ready
+8. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -219,8 +229,9 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
    - Developer A: User Story 1
-   - Developer B: User Story 3 (ingestion)
-   - Developer C: User Story 2
+   - Developer B: User Story 2
+   - Developer C: User Story 3
+   - Developer D: User Story 4
 3. Stories complete and integrate independently
 
 ---

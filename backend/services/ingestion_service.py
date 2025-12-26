@@ -3,7 +3,6 @@ Framework for the ingestion service
 """
 import os
 import asyncio
-import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 import requests
 import sys
@@ -15,6 +14,7 @@ sys.path.insert(0, parent_dir)
 
 from utils.html_parser import extract_book_content
 from utils.text_splitter import split_text_into_chunks
+from utils.sitemap_parser import SitemapParser
 from services.qdrant_service import QdrantService
 from services.embedding_service import EmbeddingService
 from config import Config
@@ -26,17 +26,9 @@ class IngestionService:
         self.sitemap_url = Config.BOOK_SITEMAP_URL
 
     def fetch_sitemap(self) -> List[str]:
-        """Fetch and parse sitemap.xml to extract all book page URLs"""
-        response = requests.get(self.sitemap_url)
-        response.raise_for_status()
-
-        root = ET.fromstring(response.content)
-        urls = []
-
-        # Handle both regular sitemap and sitemap index
-        for url_element in root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc'):
-            urls.append(url_element.text)
-
+        """Fetch and parse sitemap using enhanced sitemap parser to extract all book page URLs"""
+        sitemap_parser = SitemapParser()
+        urls = sitemap_parser.fetch_sitemap(self.sitemap_url)
         return urls
 
     def fetch_page_content(self, url: str) -> str:

@@ -75,12 +75,12 @@ curl -X POST http://localhost:8000/chat \
 
 ## Environment Variables
 
-- `COHERE_API_KEY`: Your Cohere API key for embeddings
-- `QDRANT_URL`: URL to your Qdrant instance
-- `QDRANT_API_KEY`: Your Qdrant API key
-- `QDRANT_COLLECTION_NAME`: Name of the collection to store book content
-- `BOOK_SITEMAP_URL`: URL to the book's sitemap.xml
-- `ANTHROPIC_API_KEY`: Your Anthropic API key (if using Claude models)
+- `COHERE_API_KEY`: "ctx7sk-245b924d-db37-4e45-9c92-acbdc4066128"
+- `QDRANT_URL`: "https://07d61841-ecc3-4128-a1ec-3e2361d704b5.europe-west3-0.gcp.cloud.qdrant.io"
+- `QDRANT_API_KEY`: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.lsSUxQBchrDmqJGlviVxLenFRbzu-56mVJNJqFqJ1_8"
+- `QDRANT_COLLECTION_NAME`: "ai_book_vdb"
+- `BOOK_SITEMAP_URL`: "https://hackthon-ai-book-spkit.vercel.app/sitemap.xml"
+- `ANTHROPIC_API_KEY`: "your-anthropic-api-key-here"
 
 ## API Endpoints
 

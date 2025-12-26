@@ -12,6 +12,9 @@ class Config:
     # Cohere configuration
     COHERE_API_KEY: Optional[str] = os.getenv("COHERE_API_KEY")
 
+    # Anthropic configuration
+    ANTHROPIC_API_KEY: Optional[str] = os.getenv("ANTHROPIC_API_KEY")
+
     # Qdrant configuration
     QDRANT_URL: Optional[str] = os.getenv("QDRANT_URL")
     QDRANT_API_KEY: Optional[str] = os.getenv("QDRANT_API_KEY")
@@ -31,6 +34,7 @@ class Config:
         """Validate that all required environment variables are set"""
         required_vars = [
             "COHERE_API_KEY",
+            "ANTHROPIC_API_KEY",
             "QDRANT_URL",
             "QDRANT_API_KEY",
             "QDRANT_COLLECTION_NAME",

@@ -42,8 +42,20 @@ async def chat_endpoint(request: ChatRequest):
         # Process the query using RAG service
         response = await rag_service.process_query(request.question, request.selected_text)
         return response
+    except HTTPException:
+        # Re-raise HTTP exceptions (like validation errors)
+        raise
     except Exception as e:
         # Log the actual error for debugging (optional - you might want to add proper logging)
         print(f"Error processing query: {str(e)}")
-        # Return user-friendly error message
-        raise HTTPException(status_code=500, detail="Sorry, I encountered an error processing your request. Please try again.")
+        # According to spec: If retrieval returns no results, respond EXACTLY: "This topic is not covered in the book"
+        # No generic error messages should be returned to the user
+        # Return a response with the specific fallback message instead of an HTTP error
+        from datetime import datetime
+        import uuid
+        return QueryResponse(
+            id=str(uuid.uuid4()),
+            answer="This topic is not covered in the book",
+            references=[],
+            timestamp=datetime.now()
+        )

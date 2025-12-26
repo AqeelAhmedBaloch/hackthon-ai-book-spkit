@@ -4,7 +4,6 @@ This script should be run as a one-time manual process
 """
 import os
 import asyncio
-import xml.etree.ElementTree as ET
 from typing import List, Dict, Any
 import requests
 import cohere
@@ -18,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from utils.html_parser import extract_book_content
 from utils.text_splitter import split_text_into_chunks
+from utils.sitemap_parser import SitemapParser
 from services.qdrant_service import QdrantService
 from services.embedding_service import EmbeddingService
 
@@ -34,24 +34,29 @@ class BookIngestor:
             raise ValueError("BOOK_SITEMAP_URL environment variable is required")
 
     def fetch_sitemap(self) -> List[str]:
-        """Fetch and parse sitemap.xml to extract all book page URLs"""
-        response = requests.get(self.sitemap_url)
-        response.raise_for_status()
-
-        root = ET.fromstring(response.content)
-        urls = []
-
-        # Handle both regular sitemap and sitemap index
-        for url_element in root.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}url/{http://www.sitemaps.org/schemas/sitemap/0.9}loc'):
-            urls.append(url_element.text)
-
+        """Fetch and parse sitemap using enhanced sitemap parser to extract all book page URLs"""
+        sitemap_parser = SitemapParser()
+        urls = sitemap_parser.fetch_sitemap(self.sitemap_url)
         return urls
 
     def fetch_page_content(self, url: str) -> str:
         """Fetch content from a single book page URL"""
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.text
+        try:
+            response = requests.get(url, timeout=30)  # Add timeout to prevent hanging
+            response.raise_for_status()
+            return response.text
+        except requests.exceptions.ConnectionError as e:
+            if "getaddrinfo failed" in str(e) or "[Errno 11001]" in str(e):
+                print(f"  Error processing {url}: DNS resolution failed - {str(e)}")
+            else:
+                print(f"  Error processing {url}: Connection error - {str(e)}")
+            raise
+        except requests.exceptions.Timeout as e:
+            print(f"  Error processing {url}: Request timed out - {str(e)}")
+            raise
+        except requests.exceptions.RequestException as e:
+            print(f"  Error processing {url}: {str(e)}")
+            raise
 
     def process_book_content(self, url: str, html_content: str) -> List[Dict[str, Any]]:
         """Extract main book content from HTML and split into chunks"""

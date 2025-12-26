@@ -106,12 +106,21 @@ python -m src.ingest
 ```
 
 This will:
-- Fetch the sitemap.xml from BOOK_SITEMAP_URL
-- Extract all book page URLs
+- Fetch the sitemap from BOOK_SITEMAP_URL with format validation
+- Handle XML, XML.GZ, sitemap index, and HTML sitemap formats
+- Extract all book page URLs with content-type validation
 - Fetch content from each page
 - Chunk content into 300-800 token pieces
 - Generate embeddings using Cohere
 - Store in Qdrant with proper metadata
+
+### Enhanced Sitemap Handling
+
+The system now supports multiple sitemap formats:
+- Regular XML sitemaps (`application/xml`, `text/xml`)
+- Compressed XML sitemaps (`.xml.gz` files with `application/gzip`)
+- Sitemap index files with nested sitemaps
+- HTML responses with sitemap links (parsed using BeautifulSoup4)
 
 ### 2. Start the Backend Server
 
