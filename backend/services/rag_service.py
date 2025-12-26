@@ -25,6 +25,7 @@ class RAGService:
         """
         Process a user query by retrieving relevant context from Qdrant and generating a response
         """
+<<<<<<< Updated upstream
         try:
             # Search for relevant content in Qdrant
             search_results = await self.qdrant_service.search_similar(question, top_k=5)
@@ -70,3 +71,39 @@ class RAGService:
                 references=[],
                 timestamp=datetime.now()
             )
+=======
+        # Search for relevant content in Qdrant
+        search_results = await self.qdrant_service.search_similar(question, top_k=5)
+
+        # If no relevant content is found, return the fallback response
+        if not search_results:
+            response = QueryResponse(
+                id=str(uuid.uuid4()),
+                answer="This topic is not covered in the book",
+                references=[],
+                timestamp=datetime.now()
+            )
+            return response
+
+        # Process the query with the RAG agent using the retrieved context
+        agent_response = await self.agent.process_query(question, search_results)
+
+        # Convert agent response to QueryResponse format
+        references = [
+            Reference(
+                chapter=ref.get('chapter', ''),
+                section=ref.get('section', ''),
+                source_url=ref.get('source_url', '')
+            )
+            for ref in agent_response.references
+        ]
+
+        response = QueryResponse(
+            id=str(uuid.uuid4()),
+            answer=agent_response.answer,
+            references=references,
+            timestamp=datetime.now()
+        )
+
+        return response
+>>>>>>> Stashed changes
