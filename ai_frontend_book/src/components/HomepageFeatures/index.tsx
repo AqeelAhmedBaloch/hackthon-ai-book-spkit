@@ -12,7 +12,7 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Module 1: The Robotic Nervous System (ROS 2',
+    title: 'Module 1: The Robotic Nervous System (ROS 2)',
     description: (
       <>
         Learn ROS 2 fundamentals, Python AI agents, and URDF basics - the foundation of connecting AI logic to humanoid robot control.
