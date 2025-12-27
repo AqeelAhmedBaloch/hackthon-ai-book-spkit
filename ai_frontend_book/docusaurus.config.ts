@@ -103,11 +103,6 @@ const config: Config = {
           label: 'TextBook',
         },
         {
-          to: '/login',
-          label: 'Login',
-          position: 'right',
-        },
-        {
           href: 'https://github.com/AqeelAhmedBaloch/hackthon-ai-book-spkit',
           label: 'GitHub',
           position: 'right',
