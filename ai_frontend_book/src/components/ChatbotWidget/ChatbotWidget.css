@@ -243,6 +243,28 @@
   line-height: 1.5;
 }
 
+.chatbot-citations ul {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0 0;
+}
+
+.chatbot-citations li {
+  margin-bottom: 4px;
+}
+
+.chatbot-citations a {
+  color: #1e40af;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.chatbot-citations a:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
 .chatbot-message-timestamp {
   font-size: 11px;
   color: #94a3b8;

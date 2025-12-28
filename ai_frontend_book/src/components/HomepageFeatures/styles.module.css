@@ -7,6 +7,7 @@
   overflow: hidden;
 }
 
+
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -94,6 +95,29 @@
   line-height: 1.5;
   margin: 0;
   flex-grow: 1;
+}
+
+/* Wider cards on larger screens for better balance */
+@media screen and (min-width: 997px) and (max-width: 1200px) {
+  .featureCard {
+    max-width: 420px;
+    margin: 0.75rem;
+  }
+
+  .cardDescription {
+    max-width: 380px;
+  }
+}
+
+@media screen and (min-width: 1201px) {
+  .featureCard {
+    max-width: 450px;
+    margin: 0.75rem;
+  }
+
+  .cardDescription {
+    max-width: 400px;
+  }
 }
 
 /* Responsive adjustments */

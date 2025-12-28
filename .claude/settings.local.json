@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(mkdir -p ai_frontend_book/docs/module1)",
-      "Bash(mkdir -p specs/004-qdrant-rag-chatbot)"
+      "Bash(mkdir -p specs/004-qdrant-rag-chatbot)",
+      "Bash(uv run:*)"
     ]
   }
 }

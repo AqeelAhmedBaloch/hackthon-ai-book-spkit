@@ -6,7 +6,13 @@ interface ChatMessage {
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  citations?: string[];
+  citations?: Source[];
+}
+
+interface Source {
+  url: string;
+  title?: string;
+  score?: number;
 }
 
 const ChatbotWidget: React.FC = () => {
@@ -58,12 +64,12 @@ const ChatbotWidget: React.FC = () => {
     try {
       // Prepare the request body with selected text if available
       const requestBody = {
-        question: inputText,
+        query: inputText,
         selected_text: selectedText || null
       };
 
       // Call the backend API
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/query`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +165,16 @@ const ChatbotWidget: React.FC = () => {
                     {message.content}
                     {message.citations && message.citations.length > 0 && (
                       <div className="chatbot-citations">
-                        <strong>Sources:</strong> {message.citations.join(', ')}
+                        <strong>Sources:</strong>
+                        <ul>
+                          {message.citations.map((source: any, idx: number) => (
+                            <li key={idx}>
+                              <a href={source.url} target="_blank" rel="noopener noreferrer">
+                                {source.title || source.url}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
                   </div>
