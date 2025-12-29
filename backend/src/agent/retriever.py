@@ -32,7 +32,7 @@ async def retrieve_content(
     score_threshold: Optional[float] = None,
 ) -> List[RetrievedContent]:
     """
-    Search Qdrant for relevant book content.
+    Search Qdrant for relevant book content with automatic fallback.
 
     Args:
         query_embedding: The query's vector embedding
@@ -53,6 +53,7 @@ async def retrieve_content(
     logger.debug(f"Retrieving top {top_k} results with threshold {score_threshold}")
 
     try:
+        # First attempt: search with score threshold
         results = qdrant_client.search(
             query_vector=query_embedding,
             limit=top_k,
@@ -73,6 +74,36 @@ async def retrieve_content(
                 score=getattr(result, "score", 0.0),
             )
             retrieved.append(content)
+
+        # Fallback: If no results with threshold, try without threshold to get best matches
+        if not retrieved and score_threshold is not None and score_threshold > 0:
+            logger.warning(
+                f"No results found with threshold {score_threshold}. "
+                f"Retrying without threshold to find best matches..."
+            )
+            results = qdrant_client.search(
+                query_vector=query_embedding,
+                limit=top_k,
+                score_threshold=None,  # No threshold - get best matches
+            )
+
+            for result in results:
+                payload = result.payload
+                if not payload:
+                    continue
+                content = RetrievedContent(
+                    url=payload.get("url", ""),
+                    title=payload.get("title"),
+                    content=payload.get("content", ""),
+                    score=getattr(result, "score", 0.0),
+                )
+                retrieved.append(content)
+
+            if retrieved:
+                logger.info(
+                    f"Fallback successful: Retrieved {len(retrieved)} passages "
+                    f"(scores: {[f'{r.score:.3f}' for r in retrieved[:3]]})"
+                )
 
         logger.info(f"Retrieved {len(retrieved)} relevant passages")
         return retrieved

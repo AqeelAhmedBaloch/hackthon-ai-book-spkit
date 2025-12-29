@@ -66,8 +66,25 @@ async def generate_answer(
     except Exception as e:
         logger.error(f"Failed to generate answer with LLM: {e}", exc_info=True)
         # Fallback: return the retrieved content directly when LLM fails
-        fallback_answer = f"I found some relevant content in the book about your question, but encountered an error generating the full answer. Here's what I found:\n\n"
-        for i, item in enumerate(retrieved_content[:2], 1):  # Return top 2 results
-            fallback_answer += f"\n{i}. From '{item.title}':\n{item.content[:300]}...\n"
+        # But still provide sources so user can navigate to full content
 
-        return fallback_answer, []
+        fallback_answer = "Based on the book content I found:\n\n"
+        sources = []
+
+        for i, item in enumerate(retrieved_content[:3], 1):  # Return top 3 results
+            # Add to answer
+            title_text = item.title if item.title else "Unknown source"
+            fallback_answer += f"{i}. {title_text}:\n{item.content[:400]}...\n\n"
+
+            # Add to sources list
+            sources.append(
+                Source(
+                    url=item.url,
+                    title=item.title,
+                    score=item.score,
+                )
+            )
+
+        fallback_answer += "\n(Note: This is a direct excerpt from the book. The full answer generation service encountered an issue.)"
+
+        return fallback_answer, sources
