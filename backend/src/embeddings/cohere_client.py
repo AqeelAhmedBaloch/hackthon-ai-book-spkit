@@ -27,7 +27,8 @@ class CohereEmbeddingsClient:
             List of floats representing the embedding vector
         """
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            # Use http2=False to avoid potential compatibility issues
+            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
                 response = await client.post(
                     f"{self.base_url}/embed",
                     headers={
@@ -47,10 +48,13 @@ class CohereEmbeddingsClient:
                 data = response.json()
                 return data["embeddings"][0]
 
+        except httpx.TimeoutException as e:
+            raise RuntimeError(f"Cohere API timeout: {str(e)}")
         except httpx.HTTPStatusError as e:
-            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {e.response.text}")
+            error_text = e.response.text if hasattr(e.response, "text") else str(e)
+            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {error_text}")
         except Exception as e:
-            raise RuntimeError(f"Failed to generate embedding with Cohere: {e}")
+            raise RuntimeError(f"Failed to generate embedding with Cohere: {type(e).__name__}: {str(e)}")
 
     async def embed_texts(self, texts: List[str], batch_size: int = 96) -> List[List[float]]:
         """
@@ -70,7 +74,8 @@ class CohereEmbeddingsClient:
             batch = texts[i : i + batch_size]
 
             try:
-                async with httpx.AsyncClient(timeout=30.0) as client:
+                # Use http2=False to avoid potential compatibility issues
+                async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
                     response = await client.post(
                         f"{self.base_url}/embed",
                         headers={
@@ -90,13 +95,16 @@ class CohereEmbeddingsClient:
                     data = response.json()
                     all_embeddings.extend(data["embeddings"])
 
+            except httpx.TimeoutException as e:
+                raise RuntimeError(f"Cohere API timeout at batch {i//batch_size}: {str(e)}")
             except httpx.HTTPStatusError as e:
+                error_text = e.response.text if hasattr(e.response, "text") else str(e)
                 raise RuntimeError(
                     f"Cohere API error at batch {i//batch_size}: "
-                    f"{e.response.status_code} - {e.response.text}"
+                    f"{e.response.status_code} - {error_text}"
                 )
             except Exception as e:
-                raise RuntimeError(f"Failed to generate batch embeddings with Cohere: {e}")
+                raise RuntimeError(f"Failed to generate batch embeddings with Cohere: {type(e).__name__}: {str(e)}")
 
         return all_embeddings
 
@@ -111,7 +119,8 @@ class CohereEmbeddingsClient:
             List of floats representing the embedding vector
         """
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            # Use http2=False to avoid potential compatibility issues
+            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
                 response = await client.post(
                     f"{self.base_url}/embed",
                     headers={
@@ -131,10 +140,13 @@ class CohereEmbeddingsClient:
                 data = response.json()
                 return data["embeddings"][0]
 
+        except httpx.TimeoutException as e:
+            raise RuntimeError(f"Cohere API timeout: {str(e)}")
         except httpx.HTTPStatusError as e:
-            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {e.response.text}")
+            error_text = e.response.text if hasattr(e.response, "text") else str(e)
+            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {error_text}")
         except Exception as e:
-            raise RuntimeError(f"Failed to generate query embedding with Cohere: {e}")
+            raise RuntimeError(f"Failed to generate query embedding with Cohere: {type(e).__name__}: {str(e)}")
 
 
 # Global Cohere embeddings client instance

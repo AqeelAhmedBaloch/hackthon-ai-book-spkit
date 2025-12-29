@@ -27,5 +27,8 @@ async def embed_query(query: str) -> List[float]:
         logger.debug(f"Generated embedding with {len(embedding)} dimensions")
         return embedding
     except Exception as e:
-        logger.error(f"Failed to embed query: {e}")
-        raise
+        logger.error(f"Failed to embed query with Cohere: {e}", exc_info=True)
+        raise RuntimeError(
+            f"Failed to generate embedding for query. This may be due to an API connectivity issue or service outage. "
+            f"Error: {type(e).__name__}: {str(e)}"
+        )

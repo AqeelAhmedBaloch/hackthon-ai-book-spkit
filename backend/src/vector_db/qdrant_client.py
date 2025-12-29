@@ -17,6 +17,7 @@ class QdrantClientWrapper:
         self.client = QdrantClient(
             url=settings.qdrant_url,
             api_key=settings.qdrant_api_key,
+            timeout=30,  # 30 second timeout for all operations
         )
         self.collection_name = settings.qdrant_collection
 
@@ -71,6 +72,7 @@ class QdrantClientWrapper:
                 query=query_vector,
                 limit=limit,
                 score_threshold=score_threshold,
+                timeout=10,  # 10 second timeout for search
             )
             return results.points
         except Exception as e:

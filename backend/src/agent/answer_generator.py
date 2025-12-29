@@ -31,7 +31,7 @@ async def generate_answer(
     if not retrieved_content:
         logger.warning("No content retrieved for question")
         return (
-            "I don't have enough information from the book to answer this question.",
+            "I don't have enough information from the book to answer this question. The book content may not contain details about this topic yet.",
             [],
         )
 
@@ -64,5 +64,10 @@ async def generate_answer(
         return answer, sources
 
     except Exception as e:
-        logger.error(f"Failed to generate answer: {e}")
-        raise
+        logger.error(f"Failed to generate answer with LLM: {e}", exc_info=True)
+        # Fallback: return the retrieved content directly when LLM fails
+        fallback_answer = f"I found some relevant content in the book about your question, but encountered an error generating the full answer. Here's what I found:\n\n"
+        for i, item in enumerate(retrieved_content[:2], 1):  # Return top 2 results
+            fallback_answer += f"\n{i}. From '{item.title}':\n{item.content[:300]}...\n"
+
+        return fallback_answer, []

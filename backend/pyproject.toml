@@ -3,6 +3,22 @@ name = "rag-book-chatbot-backend"
 version = "0.1.0"
 description = "RAG chatbot backend for answering book questions using sitemap-based ingestion"
 requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "httpx>=0.25.0",
+    "beautifulsoup4>=4.12.0",
+    "qdrant-client>=1.7.0",
+    "cohere>=5.0.0",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+]
+
+[project.scripts]
+agent = "agent:main"
+server = "main:app"
+ingest = "ingest:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -17,16 +33,4 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "black>=23.11.0",
     "ruff>=0.1.0",
-]
-
-dependencies = [
-    "fastapi>=0.104.0",
-    "uvicorn[standard]>=0.24.0",
-    "httpx>=0.25.0",
-    "beautifulsoup4>=4.12.0",
-    "qdrant-client>=1.7.0",
-    "cohere>=5.0.0",
-    "python-dotenv>=1.0.0",
-    "pydantic>=2.5.0",
-    "pydantic-settings>=2.1.0",
 ]

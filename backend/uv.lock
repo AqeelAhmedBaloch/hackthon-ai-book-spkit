@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.10"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1119,8 +1119,6 @@ wheels = [
 name = "rag-book-chatbot-backend"
 version = "0.1.0"
 source = { editable = "." }
-
-[package.optional-dependencies]
 dependencies = [
     { name = "beautifulsoup4" },
     { name = "cohere" },
@@ -1132,6 +1130,8 @@ dependencies = [
     { name = "qdrant-client" },
     { name = "uvicorn", extra = ["standard"] },
 ]
+
+[package.optional-dependencies]
 dev = [
     { name = "black" },
     { name = "pytest" },
@@ -1141,21 +1141,21 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beautifulsoup4", marker = "extra == 'dependencies'", specifier = ">=4.12.0" },
+    { name = "beautifulsoup4", specifier = ">=4.12.0" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.11.0" },
-    { name = "cohere", marker = "extra == 'dependencies'", specifier = ">=5.0.0" },
-    { name = "fastapi", marker = "extra == 'dependencies'", specifier = ">=0.104.0" },
-    { name = "httpx", marker = "extra == 'dependencies'", specifier = ">=0.25.0" },
-    { name = "pydantic", marker = "extra == 'dependencies'", specifier = ">=2.5.0" },
-    { name = "pydantic-settings", marker = "extra == 'dependencies'", specifier = ">=2.1.0" },
+    { name = "cohere", specifier = ">=5.0.0" },
+    { name = "fastapi", specifier = ">=0.104.0" },
+    { name = "httpx", specifier = ">=0.25.0" },
+    { name = "pydantic", specifier = ">=2.5.0" },
+    { name = "pydantic-settings", specifier = ">=2.1.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.21.0" },
-    { name = "python-dotenv", marker = "extra == 'dependencies'", specifier = ">=1.0.0" },
-    { name = "qdrant-client", marker = "extra == 'dependencies'", specifier = ">=1.7.0" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "qdrant-client", specifier = ">=1.7.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.1.0" },
-    { name = "uvicorn", extras = ["standard"], marker = "extra == 'dependencies'", specifier = ">=0.24.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.24.0" },
 ]
-provides-extras = ["dev", "dependencies"]
+provides-extras = ["dev"]
 
 [[package]]
 name = "requests"

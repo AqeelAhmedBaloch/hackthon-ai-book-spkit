@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
         qdrant_client.ensure_collection_exists()
         logger.info("[OK] Qdrant collection verified")
     except Exception as e:
-        logger.error(f"Failed to initialize Qdrant: {e}")
+        logger.error(f"Failed to initialize Qdrant: {e}", exc_info=True)
         raise RuntimeError(f"Cannot start without Qdrant access: {e}")
 
     logger.info("[OK] Application started successfully")
@@ -56,7 +56,7 @@ app = FastAPI(
 # Add CORS middleware to allow frontend access
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

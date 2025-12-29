@@ -63,6 +63,9 @@ async def retrieve_content(
         retrieved = []
         for result in results:
             payload = result.payload
+            if not payload:  # Skip if payload is None or empty
+                logger.warning(f"Skipping result with empty payload")
+                continue
             content = RetrievedContent(
                 url=payload.get("url", ""),
                 title=payload.get("title"),
@@ -75,8 +78,11 @@ async def retrieve_content(
         return retrieved
 
     except Exception as e:
-        logger.error(f"Failed to retrieve content from Qdrant: {e}")
-        raise
+        logger.error(f"Failed to retrieve content from Qdrant: {e}", exc_info=True)
+        raise RuntimeError(
+            f"Failed to search the book database. This may be due to a database connection issue. "
+            f"Error: {type(e).__name__}: {str(e)}"
+        )
 
 
 def format_context_for_llm(retrieved: List[RetrievedContent]) -> str:

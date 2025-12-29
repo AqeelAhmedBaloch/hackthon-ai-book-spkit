@@ -57,7 +57,8 @@ class OpenRouterClient:
         messages.append({"role": "user", "content": prompt})
 
         try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            # Use http2=False to avoid potential compatibility issues with alpha Python
+            async with httpx.AsyncClient(timeout=60.0, http2=False) as client:
                 response = await client.post(
                     f"{self.base_url}/chat/completions",
                     headers={
@@ -77,11 +78,12 @@ class OpenRouterClient:
                 return data["choices"][0]["message"]["content"]
 
         except httpx.TimeoutException as e:
-            raise RuntimeError(f"OpenRouter API timeout after 60s: {e}")
+            raise RuntimeError(f"OpenRouter API timeout after 60s: {str(e)}")
         except httpx.HTTPStatusError as e:
-            raise RuntimeError(f"OpenRouter API error: {e.response.status_code} - {e.response.text}")
+            error_text = e.response.text if hasattr(e.response, "text") else str(e)
+            raise RuntimeError(f"OpenRouter API error: {e.response.status_code} - {error_text}")
         except Exception as e:
-            raise RuntimeError(f"Failed to generate response with OpenRouter: {e}")
+            raise RuntimeError(f"Failed to generate response with OpenRouter: {type(e).__name__}: {str(e)}")
 
     async def generate_with_context(
         self,

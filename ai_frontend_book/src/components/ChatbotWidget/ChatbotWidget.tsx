@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ChatbotWidget.css';
 
+// API URL configuration
+const API_URL = import.meta.env?.API_URL || 'http://localhost:8000';
+
 interface ChatMessage {
   id: string;
   type: 'user' | 'assistant';
@@ -69,7 +72,7 @@ const ChatbotWidget: React.FC = () => {
       };
 
       // Call the backend API
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/chat`, {
+      const response = await fetch(`${API_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
