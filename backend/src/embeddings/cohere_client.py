@@ -21,7 +21,7 @@ class CohereEmbeddingsClient:
     def _get_client(self) -> httpx.AsyncClient:
         """Get or create singleton httpx client."""
         if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient(timeout=30.0, http2=False)
+            self._client = httpx.AsyncClient(timeout=8.0, http2=True)  # Optimized: 8s (down from 15s)
         return self._client
 
     async def close(self):

@@ -21,7 +21,7 @@ class OpenRouterClient:
     def _get_client(self) -> httpx.AsyncClient:
         """Get or create singleton httpx client."""
         if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient(timeout=60.0, http2=False)
+            self._client = httpx.AsyncClient(timeout=15.0, http2=True)  # Optimized: 15s (down from 30s)
         return self._client
 
     async def close(self):
@@ -34,7 +34,7 @@ class OpenRouterClient:
         self,
         prompt: str,
         conversation_history: Optional[List[dict]] = None,
-        max_tokens: int = 1000,
+        max_tokens: int = 500,  # Optimized: 500 (down from 1000) for faster responses
         temperature: float = 0.7,
     ) -> str:
         """
@@ -51,14 +51,12 @@ class OpenRouterClient:
         """
         messages = []
 
-        # Add system instruction to enforce book-only constraint
+        # Add system instruction to enforce book-only constraint (shortened for faster processing)
         system_message = {
             "role": "system",
             "content": (
-                "You are a helpful assistant that answers questions based ONLY on the "
-                "provided book content. If the information is not in the provided "
-                "content, clearly state that you don't have enough information from the book. "
-                "Do not use outside knowledge or make assumptions beyond what's given."
+                "Answer ONLY using provided book content. If not found, say so. "
+                "Be concise and direct. Use bullet points when appropriate."
             )
         }
         messages.append(system_message)

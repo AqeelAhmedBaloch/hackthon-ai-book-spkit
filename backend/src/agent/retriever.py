@@ -55,7 +55,7 @@ async def retrieve_content(
         # Single query: Fetch slightly more results than requested to allow for filtering
         # while still having a fallback if threshold is too strict.
         # We don't set score_threshold in the query itself to avoid double-trips.
-        results = qdrant_client.search(
+        results = await qdrant_client.search(
             query_vector=query_embedding,
             limit=top_k,
             score_threshold=None,

@@ -15,7 +15,7 @@ def async_retry(
     max_retries: int = settings.max_retries,
     base_delay: float = settings.retry_base_delay,
     max_delay: float = settings.retry_max_delay,
-    retriable_statuses: Tuple[int, ...] = (429, 500, 502, 503, 504),
+    retriable_statuses: Tuple[int, ...] = (500, 502, 503, 504),
     exceptions: Tuple[Type[Exception], ...] = (httpx.TimeoutException, httpx.NetworkError)
 ):
     """
@@ -41,15 +41,21 @@ def async_retry(
 
                     # Determine if the error is retriable
                     is_retriable = False
+                    is_rate_limit = False
 
                     if isinstance(e, httpx.HTTPStatusError):
-                        if e.response.status_code in retriable_statuses:
+                        if e.response.status_code == 429:
+                            # Rate limit error - special handling with longer delays
+                            is_retriable = True
+                            is_rate_limit = True
+                        elif e.response.status_code in retriable_statuses:
                             is_retriable = True
                     elif isinstance(e, exceptions):
                         is_retriable = True
                     # Also check for RuntimeError that might wrap status errors or contains status code info
-                    elif isinstance(e, RuntimeError) and "429" in str(e):
-                         is_retriable = True
+                    elif isinstance(e, RuntimeError) and ("429" in str(e) or "rate limit" in str(e).lower()):
+                        is_retriable = True
+                        is_rate_limit = True
 
                     # If not retriable or we've exhausted retries, raise the last exception
                     if not is_retriable or attempt == max_retries:
@@ -57,8 +63,14 @@ def async_retry(
                             logger.error(f"Exhausted {max_retries} retries for {func.__name__}. Last error: {str(e)}")
                         raise last_exception
 
-                    # Calculate exponential backoff: base * 2^attempt
-                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    # Calculate exponential backoff with longer delays for rate limits
+                    if is_rate_limit:
+                        # Rate limits need longer waits - use 2x the normal delay
+                        delay = min(base_delay * (3 ** attempt), max_delay * 2)
+                    else:
+                        # Normal exponential backoff: base * 2^attempt
+                        delay = min(base_delay * (2 ** attempt), max_delay)
+
                     # Add jitter: ±10% random variation
                     jitter = random.uniform(-0.1 * delay, 0.1 * delay)
                     sleep_time = max(0, delay + jitter)

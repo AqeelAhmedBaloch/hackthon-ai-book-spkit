@@ -18,7 +18,7 @@ if sys.platform == 'win32':
 from src.config import settings
 from src.utils.logger import logger, setup_logger
 from src.vector_db.qdrant_client import qdrant_client
-from src.embeddings.cohere_client import cohere_client
+from src.embeddings.local_client import local_embeddings_client
 from src.ingest.sitemap_validator import validate_sitemap_url
 from src.ingest.sitemap_parser import parse_sitemap
 from src.ingest.page_fetcher import fetch_pages, PageFetchError
@@ -103,7 +103,7 @@ async def ingest_from_sitemap(sitemap_url: str, skip_validation: bool = False) -
     texts = [c.content for c in contents]
 
     try:
-        embeddings = await cohere_client.embed_texts(texts)
+        embeddings = await local_embeddings_client.embed_texts(texts)
         logger.info(f"[OK] Generated {len(embeddings)} embeddings")
     except Exception as e:
         raise RuntimeError(f"Failed to generate embeddings: {e}")
@@ -130,20 +130,20 @@ async def ingest_from_sitemap(sitemap_url: str, skip_validation: bool = False) -
 
     # Step 7: Ensure Qdrant collection exists
     logger.info("Step 7: Ensuring Qdrant collection exists...")
-    qdrant_client.ensure_collection_exists()
+    await qdrant_client.ensure_collection_exists()
     logger.info(f"[OK] Collection ready: {settings.qdrant_collection}")
 
     # Step 8: Upsert points to Qdrant
     logger.info(f"Step 8: Upserting {len(points)} points to Qdrant...")
     try:
-        qdrant_client.upsert_points(points)
+        await qdrant_client.upsert_points(points)
         logger.info(f"[OK] Successfully upserted {len(points)} points")
     except Exception as e:
         raise RuntimeError(f"Failed to upsert points to Qdrant: {e}")
 
     # Step 9: Verify ingestion
     logger.info("Step 9: Verifying ingestion...")
-    collection_info = qdrant_client.get_collection_info()
+    collection_info = await qdrant_client.get_collection_info()
     if collection_info:
         total_points = collection_info.points_count
         logger.info(f"[OK] Collection now has {total_points} total points")

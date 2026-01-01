@@ -30,10 +30,13 @@ async def generate_answer(
     """
     if not retrieved_content:
         logger.warning("No content retrieved for question")
-        return (
-            "I don't have enough information from the book to answer this question. The book content may not contain details about this topic yet.",
-            [],
+        fallback_message = (
+            "I don't have enough information from the book to confidently answer this question. "
+            "The Physical AI - Humanoid Robotics textbook covers ROS 2, NVIDIA Isaac, "
+            "and related robotics topics. Could you try rephrasing or asking about "
+            "specific topics like 'What is ROS 2?' or 'How does NVIDIA Isaac work?'"
         )
+        return (fallback_message, [])
 
     # Format context for LLM
     from src.agent.retriever import format_context_for_llm
@@ -65,26 +68,29 @@ async def generate_answer(
 
     except Exception as e:
         logger.error(f"Failed to generate answer with LLM: {e}", exc_info=True)
-        # Fallback: return the retrieved content directly when LLM fails
-        # But still provide sources so user can navigate to full content
+        # Fallback: Provide helpful answer using retrieved content directly when LLM fails
 
-        fallback_answer = "Based on the book content I found:\n\n"
-        sources = []
-
-        for i, item in enumerate(retrieved_content[:3], 1):  # Return top 3 results
-            # Add to answer
-            title_text = item.title if item.title else "Unknown source"
-            fallback_answer += f"{i}. {title_text}:\n{item.content[:400]}...\n\n"
-
-            # Add to sources list
-            sources.append(
-                Source(
-                    url=item.url,
-                    title=item.title,
-                    score=item.score,
-                )
+        if not retrieved_content:
+            fallback_answer = (
+                "I couldn't generate a full answer, but I found related content in the book. "
+                "Please try asking a more specific question or check the textbook chapters directly."
             )
+            sources = []
+        else:
+            fallback_answer = "Based on the book content I found, here are the most relevant sections:\n\n"
+            sources = []
 
-        fallback_answer += "\n(Note: This is a direct excerpt from the book. The full answer generation service encountered an issue.)"
+            for i, item in enumerate(retrieved_content[:3], 1):
+                title_text = item.title if item.title else "Section from textbook"
+                fallback_answer += f"{i}. {title_text}\n"
+                sources.append(
+                    Source(
+                        url=item.url,
+                        title=item.title,
+                        score=item.score,
+                    )
+                )
+
+            fallback_answer += "\nI suggest checking these sections for detailed information."
 
         return fallback_answer, sources

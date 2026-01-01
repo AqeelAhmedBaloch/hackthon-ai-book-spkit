@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
 
     # Ensure Qdrant collection exists
     try:
-        qdrant_client.ensure_collection_exists()
+        await qdrant_client.ensure_collection_exists()
         logger.info("[OK] Qdrant collection verified")
     except Exception as e:
         logger.error(f"Failed to initialize Qdrant: {e}", exc_info=True)
@@ -48,6 +48,7 @@ async def lifespan(app: FastAPI):
     # Close AI clients to free connections
     await cohere_client.close()
     await openrouter_client.close()
+    await qdrant_client.close()
     logger.info("AI clients closed")
 
 
@@ -94,7 +95,7 @@ async def health_check() -> dict:
     # Check Qdrant connection
     qdrant_status = "healthy"
     try:
-        collection_info = qdrant_client.get_collection_info()
+        collection_info = await qdrant_client.get_collection_info()
         if collection_info is None:
             qdrant_status = "error"
             points_count = 0

@@ -43,6 +43,18 @@ class RAGAgent:
         """
         logger.info(f"Processing question: {question[:100]}...")
 
+        # Fast-path: Handle greetings and simple inputs without calling APIs
+        question_lower = question.strip().lower()
+        greetings = ["hi", "hello", "hey", "greetings", "good morning", "good afternoon", "good evening"]
+        if question_lower in greetings or len(question_lower) <= 2:
+            greeting_answer = (
+                "Hello! I'm your Physical AI - Humanoid Robotics textbook assistant. "
+                "I can help answer questions about ROS 2, NVIDIA Isaac, AI concepts, "
+                "and other topics covered in the book. What would you like to know?"
+            )
+            logger.info("Greeting detected, returning welcome message")
+            return Answer(text=greeting_answer, sources=[], confidence=1.0)
+
         try:
             # Step 1: Embed the query
             logger.debug("Step 1: Embedding query...")

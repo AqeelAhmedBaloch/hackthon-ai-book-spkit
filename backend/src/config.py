@@ -34,15 +34,19 @@ class Settings(BaseSettings):
     qdrant_api_key: str = Field(..., alias="QDRANT_API_KEY")
     qdrant_collection: str = Field(default="book_content", alias="QDRANT_COLLECTION")
 
+    # Embedding Configuration
+    embedding_model: str = Field(default="local", alias="EMBEDDING_MODEL")  # "local" or "cohere"
+    embedding_dim: int = Field(default=384, alias="EMBEDDING_DIM")  # 384 for local, 1024 for Cohere
+
     # RAG Settings
     max_context_tokens: int = Field(default=4000, alias="MAX_CONTEXT_TOKENS")
-    top_k_results: int = Field(default=5, alias="TOP_K_RESULTS")
-    retrieve_score_threshold: float = Field(default=0.5, alias="RETRIEVE_SCORE_THRESHOLD")
+    top_k_results: int = Field(default=3, alias="TOP_K_RESULTS")  # Optimized: 3 (down from 5) for faster retrieval
+    retrieve_score_threshold: float = Field(default=0.3, alias="RETRIEVE_SCORE_THRESHOLD")
 
     # Retry Settings
-    max_retries: int = Field(default=3, alias="MAX_RETRIES")
-    retry_base_delay: float = Field(default=1.0, alias="RETRY_BASE_DELAY")
-    retry_max_delay: float = Field(default=10.0, alias="RETRY_MAX_DELAY")
+    max_retries: int = Field(default=4, alias="MAX_RETRIES")  # Increased for better rate limit handling
+    retry_base_delay: float = Field(default=1.0, alias="RETRY_BASE_DELAY")  # 1s base delay
+    retry_max_delay: float = Field(default=15.0, alias="RETRY_MAX_DELAY")  # 15s max delay for rate limits
 
 
 # Global settings instance
