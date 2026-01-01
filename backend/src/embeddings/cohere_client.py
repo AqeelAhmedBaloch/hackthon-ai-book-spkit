@@ -16,6 +16,18 @@ class CohereEmbeddingsClient:
         self.api_key = settings.cohere_api_key
         self.model = settings.cohere_model
         self.base_url = "https://api.cohere.ai/v1"
+        self._client: Optional[httpx.AsyncClient] = None
+
+    def _get_client(self) -> httpx.AsyncClient:
+        """Get or create singleton httpx client."""
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(timeout=30.0, http2=False)
+        return self._client
+
+    async def close(self):
+        """Close the underlying httpx client."""
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
 
     @async_retry()
     async def _execute_embedding_request(
@@ -25,24 +37,24 @@ class CohereEmbeddingsClient:
         Internal method to execute an embedding request with retry logic.
         """
         try:
-            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
-                response = await client.post(
-                    f"{self.base_url}/embed",
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                        "X-Client-Name": "rag-book-chatbot",
-                    },
-                    json={
-                        "texts": texts,
-                        "model": self.model,
-                        "input_type": input_type,
-                        "truncate": "END",
-                    },
-                )
-                response.raise_for_status()
-                data = response.json()
-                return data["embeddings"]
+            client = self._get_client()
+            response = await client.post(
+                f"{self.base_url}/embed",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "X-Client-Name": "rag-book-chatbot",
+                },
+                json={
+                    "texts": texts,
+                    "model": self.model,
+                    "input_type": input_type,
+                    "truncate": "END",
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data["embeddings"]
 
         except httpx.TimeoutException as e:
             raise RuntimeError(f"Cohere API timeout: {str(e)}")

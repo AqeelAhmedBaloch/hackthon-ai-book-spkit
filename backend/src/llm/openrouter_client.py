@@ -16,6 +16,18 @@ class OpenRouterClient:
         self.api_key = settings.openrouter_api_key
         self.model = settings.openrouter_model
         self.base_url = "https://openrouter.ai/api/v1"
+        self._client: Optional[httpx.AsyncClient] = None
+
+    def _get_client(self) -> httpx.AsyncClient:
+        """Get or create singleton httpx client."""
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(timeout=60.0, http2=False)
+        return self._client
+
+    async def close(self):
+        """Close the underlying httpx client."""
+        if self._client and not self._client.is_closed:
+            await self._client.aclose()
 
     @async_retry()
     async def generate_response(
@@ -59,25 +71,24 @@ class OpenRouterClient:
         messages.append({"role": "user", "content": prompt})
 
         try:
-            # Use http2=False to avoid potential compatibility issues with alpha Python
-            async with httpx.AsyncClient(timeout=60.0, http2=False) as client:
-                response = await client.post(
-                    f"{self.base_url}/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens,
-                        "temperature": temperature,
-                    },
-                )
-                response.raise_for_status()
+            client = self._get_client()
+            response = await client.post(
+                f"{self.base_url}/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                },
+                json={
+                    "model": self.model,
+                    "messages": messages,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                },
+            )
+            response.raise_for_status()
 
-                data = response.json()
-                return data["choices"][0]["message"]["content"]
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
 
         except httpx.TimeoutException as e:
             raise RuntimeError(f"OpenRouter API timeout after 60s: {str(e)}")

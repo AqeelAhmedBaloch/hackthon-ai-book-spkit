@@ -15,6 +15,8 @@ from src.utils.logger import logger, setup_logger
 from src.agent.rag_agent import rag_agent
 from src.models.chat import ChatRequest, ChatResponse, Answer
 from src.vector_db.qdrant_client import qdrant_client
+from src.embeddings.cohere_client import cohere_client
+from src.llm.openrouter_client import openrouter_client
 
 
 # Setup logger on module load
@@ -43,6 +45,10 @@ async def lifespan(app: FastAPI):
 
     # Shutdown
     logger.info("Shutting down RAG Book Chatbot Backend...")
+    # Close AI clients to free connections
+    await cohere_client.close()
+    await openrouter_client.close()
+    logger.info("AI clients closed")
 
 
 # Create FastAPI app

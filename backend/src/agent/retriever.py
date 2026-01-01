@@ -32,7 +32,9 @@ async def retrieve_content(
     score_threshold: Optional[float] = None,
 ) -> List[RetrievedContent]:
     """
-    Search Qdrant for relevant book content with automatic fallback.
+    Search Qdrant for relevant book content.
+    Returns results above threshold OR best matches if none are above threshold,
+    all in a single efficient database query.
 
     Args:
         query_embedding: The query's vector embedding
@@ -41,9 +43,6 @@ async def retrieve_content(
 
     Returns:
         List of retrieved content sorted by relevance
-
-    Raises:
-        RuntimeError: If retrieval fails
     """
     if top_k is None:
         top_k = settings.top_k_results
@@ -53,60 +52,53 @@ async def retrieve_content(
     logger.debug(f"Retrieving top {top_k} results with threshold {score_threshold}")
 
     try:
-        # First attempt: search with score threshold
+        # Single query: Fetch slightly more results than requested to allow for filtering
+        # while still having a fallback if threshold is too strict.
+        # We don't set score_threshold in the query itself to avoid double-trips.
         results = qdrant_client.search(
             query_vector=query_embedding,
             limit=top_k,
-            score_threshold=score_threshold,
+            score_threshold=None,
         )
 
-        # Convert to RetrievedContent objects
+        # Process results
         retrieved = []
+        above_threshold = []
+
         for result in results:
             payload = result.payload
-            if not payload:  # Skip if payload is None or empty
-                logger.warning(f"Skipping result with empty payload")
+            if not payload:
                 continue
+
             content = RetrievedContent(
                 url=payload.get("url", ""),
                 title=payload.get("title"),
                 content=payload.get("content", ""),
                 score=getattr(result, "score", 0.0),
             )
+
+            # Keep track of everything for fallback
             retrieved.append(content)
 
-        # Fallback: If no results with threshold, try without threshold to get best matches
-        if not retrieved and score_threshold is not None and score_threshold > 0:
+            # Keep track of what's actually "good" based on threshold
+            if score_threshold is not None and content.score >= score_threshold:
+                above_threshold.append(content)
+
+        # Decision logic:
+        # 1. If we found results above threshold, return only those
+        if above_threshold:
+            logger.info(f"Retrieved {len(above_threshold)} passages above threshold {score_threshold}")
+            return above_threshold[:top_k]
+
+        # 2. If nothing above threshold, return the best matches anyway (fallback)
+        if retrieved:
             logger.warning(
                 f"No results found with threshold {score_threshold}. "
-                f"Retrying without threshold to find best matches..."
+                f"Returning {len(retrieved)} best matches as fallback."
             )
-            results = qdrant_client.search(
-                query_vector=query_embedding,
-                limit=top_k,
-                score_threshold=None,  # No threshold - get best matches
-            )
+            return retrieved[:top_k]
 
-            for result in results:
-                payload = result.payload
-                if not payload:
-                    continue
-                content = RetrievedContent(
-                    url=payload.get("url", ""),
-                    title=payload.get("title"),
-                    content=payload.get("content", ""),
-                    score=getattr(result, "score", 0.0),
-                )
-                retrieved.append(content)
-
-            if retrieved:
-                logger.info(
-                    f"Fallback successful: Retrieved {len(retrieved)} passages "
-                    f"(scores: {[f'{r.score:.3f}' for r in retrieved[:3]]})"
-                )
-
-        logger.info(f"Retrieved {len(retrieved)} relevant passages")
-        return retrieved
+        return []
 
     except Exception as e:
         logger.error(f"Failed to retrieve content from Qdrant: {e}", exc_info=True)
