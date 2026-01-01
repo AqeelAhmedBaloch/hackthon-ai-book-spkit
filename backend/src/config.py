@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     top_k_results: int = Field(default=5, alias="TOP_K_RESULTS")
     retrieve_score_threshold: float = Field(default=0.5, alias="RETRIEVE_SCORE_THRESHOLD")
 
+    # Retry Settings
+    max_retries: int = Field(default=3, alias="MAX_RETRIES")
+    retry_base_delay: float = Field(default=1.0, alias="RETRY_BASE_DELAY")
+    retry_max_delay: float = Field(default=10.0, alias="RETRY_MAX_DELAY")
+
 
 # Global settings instance
 settings = Settings()

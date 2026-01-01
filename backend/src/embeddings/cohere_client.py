@@ -2,9 +2,10 @@
 Cohere embeddings client for converting text to vector embeddings.
 """
 
-from typing import List
+from typing import List, Optional
 import httpx
 from src.config import settings
+from src.utils.retry import async_retry
 
 
 class CohereEmbeddingsClient:
@@ -16,6 +17,41 @@ class CohereEmbeddingsClient:
         self.model = settings.cohere_model
         self.base_url = "https://api.cohere.ai/v1"
 
+    @async_retry()
+    async def _execute_embedding_request(
+        self, texts: List[str], input_type: str = "search_document"
+    ) -> List[List[float]]:
+        """
+        Internal method to execute an embedding request with retry logic.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
+                response = await client.post(
+                    f"{self.base_url}/embed",
+                    headers={
+                        "Authorization": f"Bearer {self.api_key}",
+                        "Content-Type": "application/json",
+                        "X-Client-Name": "rag-book-chatbot",
+                    },
+                    json={
+                        "texts": texts,
+                        "model": self.model,
+                        "input_type": input_type,
+                        "truncate": "END",
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+                return data["embeddings"]
+
+        except httpx.TimeoutException as e:
+            raise RuntimeError(f"Cohere API timeout: {str(e)}")
+        except httpx.HTTPStatusError as e:
+            error_text = e.response.text if hasattr(e.response, "text") else str(e)
+            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {error_text}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to generate embedding with Cohere: {type(e).__name__}: {str(e)}")
+
     async def embed_text(self, text: str) -> List[float]:
         """
         Generate an embedding for a single text.
@@ -26,35 +62,8 @@ class CohereEmbeddingsClient:
         Returns:
             List of floats representing the embedding vector
         """
-        try:
-            # Use http2=False to avoid potential compatibility issues
-            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
-                response = await client.post(
-                    f"{self.base_url}/embed",
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                        "X-Client-Name": "rag-book-chatbot",
-                    },
-                    json={
-                        "texts": [text],
-                        "model": self.model,
-                        "input_type": "search_document",
-                        "truncate": "END",
-                    },
-                )
-                response.raise_for_status()
-
-                data = response.json()
-                return data["embeddings"][0]
-
-        except httpx.TimeoutException as e:
-            raise RuntimeError(f"Cohere API timeout: {str(e)}")
-        except httpx.HTTPStatusError as e:
-            error_text = e.response.text if hasattr(e.response, "text") else str(e)
-            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {error_text}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate embedding with Cohere: {type(e).__name__}: {str(e)}")
+        embeddings = await self._execute_embedding_request([text], input_type="search_document")
+        return embeddings[0]
 
     async def embed_texts(self, texts: List[str], batch_size: int = 96) -> List[List[float]]:
         """
@@ -72,39 +81,8 @@ class CohereEmbeddingsClient:
         # Process in batches
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
-
-            try:
-                # Use http2=False to avoid potential compatibility issues
-                async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
-                    response = await client.post(
-                        f"{self.base_url}/embed",
-                        headers={
-                            "Authorization": f"Bearer {self.api_key}",
-                            "Content-Type": "application/json",
-                            "X-Client-Name": "rag-book-chatbot",
-                        },
-                        json={
-                            "texts": batch,
-                            "model": self.model,
-                            "input_type": "search_document",
-                            "truncate": "END",
-                        },
-                    )
-                    response.raise_for_status()
-
-                    data = response.json()
-                    all_embeddings.extend(data["embeddings"])
-
-            except httpx.TimeoutException as e:
-                raise RuntimeError(f"Cohere API timeout at batch {i//batch_size}: {str(e)}")
-            except httpx.HTTPStatusError as e:
-                error_text = e.response.text if hasattr(e.response, "text") else str(e)
-                raise RuntimeError(
-                    f"Cohere API error at batch {i//batch_size}: "
-                    f"{e.response.status_code} - {error_text}"
-                )
-            except Exception as e:
-                raise RuntimeError(f"Failed to generate batch embeddings with Cohere: {type(e).__name__}: {str(e)}")
+            batch_embeddings = await self._execute_embedding_request(batch, input_type="search_document")
+            all_embeddings.extend(batch_embeddings)
 
         return all_embeddings
 
@@ -118,35 +96,8 @@ class CohereEmbeddingsClient:
         Returns:
             List of floats representing the embedding vector
         """
-        try:
-            # Use http2=False to avoid potential compatibility issues
-            async with httpx.AsyncClient(timeout=30.0, http2=False) as client:
-                response = await client.post(
-                    f"{self.base_url}/embed",
-                    headers={
-                        "Authorization": f"Bearer {self.api_key}",
-                        "Content-Type": "application/json",
-                        "X-Client-Name": "rag-book-chatbot",
-                    },
-                    json={
-                        "texts": [query],
-                        "model": self.model,
-                        "input_type": "search_query",
-                        "truncate": "END",
-                    },
-                )
-                response.raise_for_status()
-
-                data = response.json()
-                return data["embeddings"][0]
-
-        except httpx.TimeoutException as e:
-            raise RuntimeError(f"Cohere API timeout: {str(e)}")
-        except httpx.HTTPStatusError as e:
-            error_text = e.response.text if hasattr(e.response, "text") else str(e)
-            raise RuntimeError(f"Cohere API error: {e.response.status_code} - {error_text}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to generate query embedding with Cohere: {type(e).__name__}: {str(e)}")
+        embeddings = await self._execute_embedding_request([query], input_type="search_query")
+        return embeddings[0]
 
 
 # Global Cohere embeddings client instance

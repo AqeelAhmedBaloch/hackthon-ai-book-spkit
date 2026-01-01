@@ -2,9 +2,10 @@
 OpenRouter LLM client for generating answers based on retrieved book content.
 """
 
-from typing import Optional
+from typing import Optional, List
 import httpx
 from src.config import settings
+from src.utils.retry import async_retry
 
 
 class OpenRouterClient:
@@ -16,10 +17,11 @@ class OpenRouterClient:
         self.model = settings.openrouter_model
         self.base_url = "https://openrouter.ai/api/v1"
 
+    @async_retry()
     async def generate_response(
         self,
         prompt: str,
-        conversation_history: Optional[list[dict]] = None,
+        conversation_history: Optional[List[dict]] = None,
         max_tokens: int = 1000,
         temperature: float = 0.7,
     ) -> str:
